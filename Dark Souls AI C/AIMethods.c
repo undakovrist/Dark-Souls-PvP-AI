@@ -382,7 +382,85 @@ static void ghostHit(JOYSTICK_POSITION * iReport){
 	}
 }
 
-static void deadAngle(JOYSTICK_POSITION * iReport){
+float prevpos_x, prevpos_y;
+
+static void kick(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:kick time:%d", (curTime - startTimeAttack));
+
+	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
+
+	prevpos_x = Player.loc_x;
+	prevpos_y = Player.loc_y;
+
+	//handle entering with lockon
+	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+		iReport->lButtons |= r3;
+	}
+
+	if ((Player.animationType_id != 0) || (prevpos_x != Player.loc_x || prevpos_y != Player.loc_y)) {
+		guiPrint(LocationState",1:center joysticks");
+			iReport->wAxisX = MIDDLE;
+			iReport->wAxisY = MIDDLE;
+			//startTimeAttack = curTime - inputDelayForStart;//reset start time when we finish moving, so the rest of the time is relative towhen we stop moving
+	}
+
+	//attempt to kick
+	//if ((curTime < startTimeAttack + inputDelayForStart) && (curTime > startTimeAttack)) {
+	if ((250 < curTime - startTimeAttack) && (275 > curTime - startTimeAttack)); {
+		
+		guiPrint(LocationState",1:forward + r1");
+		longTuple move;
+		angleToJoystick(angle, &move);
+		iReport->wAxisX = move.x_axis;
+		iReport->wAxisY = move.y_axis;
+		iReport->lButtons |= r1;
+		//guiprint(LocationState, sprintf);
+	}
+
+	//end subanimation on recover animation
+	if (
+		(curTime > 275) &&
+		(Player.subanimation > AttackSubanimationWindupGhostHit)
+		){
+		guiPrint(LocationState",0:end sub kick");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(kickId);
+	}
+
+	//if kick lands, proceed to r1
+	if ((curTime > 300) && ((Enemy.passiveState_id == 51) || (Enemy.passiveState_id == 56))) {
+		guiPrint(LocationState",1:r1");
+		iReport->lButtons |= r1;
+	}
+}
+
+static void quickkick(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:kick time:%d", (curTime - startTimeAttack));
+
+	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
+
+	//basic command to kick if standing still or r1 if moving to try to cancel backstab attempts
+	if (curTime < startTimeAttack + inputDelayForKick) {
+		longTuple move;
+		angleToJoystick(angle, &move);
+		iReport->wAxisX = move.x_axis;
+		iReport->wAxisY = move.y_axis;
+		iReport->lButtons |= r1;
+	}
+
+	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
+		guiPrint(LocationState",0:end sub kick");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(quickkickId);
+	}
+}
+
+
+
+
+/*static void deadAngle(JOYSTICK_POSITION * iReport){
     long curTime = clock();
     guiPrint(LocationState",0:sub dead angle time:%d", (curTime - startTimeAttack));
 
@@ -423,6 +501,7 @@ static void deadAngle(JOYSTICK_POSITION * iReport){
         AppendLastSubroutineSelf(GhostHitId);
     }
 }
+*/
 
 static startTimeHasntBeenReset = true;
 static void backStab(JOYSTICK_POSITION * iReport){
@@ -623,8 +702,8 @@ void attack(JOYSTICK_POSITION * iReport, InstinctDecision* instinct_decision, un
             case GhostHitId:
                 ghostHit(iReport);
                 break;
-            case DeadAngleId:
-                deadAngle(iReport);
+            //case DeadAngleId:
+                //deadAngle(iReport);
                 break;
             case BackstabId:
                 backStab(iReport);
@@ -640,6 +719,12 @@ void attack(JOYSTICK_POSITION * iReport, InstinctDecision* instinct_decision, un
                 break;
 			case PivotBSId:
 				PivotBS(iReport);
+				break;
+			case kickId:
+				kick(iReport);
+				break;
+			case quickkickId:
+				quickkick(iReport);
 				break;
             default:
                 guiPrint(LocationState",0:ERROR Unknown attack action"
