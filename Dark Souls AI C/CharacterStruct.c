@@ -173,7 +173,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
             }
 
             // time before the windup ends where we can still alter rotation (only for player)
-			if (animationTimer > WeaponGhostHitTime_QFS && timeDelta >= -0.3 && characterId == PlayerId){
+			if (animationTimer > WeaponGhostHitTime_CB && timeDelta >= -0.3 && characterId == PlayerId){
                 c->subanimation = AttackSubanimationWindupGhostHit;
             }
 
