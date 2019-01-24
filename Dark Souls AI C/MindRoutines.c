@@ -59,7 +59,7 @@ DWORD WINAPI DefenseMindProcess(void* data){
 
 		//if the enemy is close behind us, and there's no possibilty of chain(which a bs cancel can't prevent) try to damage cancel their bs.
 		if (BackstabDetection(&Enemy, &Player, mostRecentDistance) && !Player.in_backstab && !Enemy.in_backstab){
-			AttackChoice = GhostHitId;
+			AttackChoice = quickkickId;
 		}
 
         //prevent rerun
@@ -139,7 +139,7 @@ DWORD WINAPI AttackMindProcess(void* data){
             //randomly choose dead angle or ghost hit
             //throw off enemy predictions
             if (rand() > RAND_MAX / 2){
-                AttackChoice = DeadAngleId;
+                AttackChoice = kickId;
             }
             else{
                 AttackChoice = GhostHitId;
@@ -160,7 +160,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 int ReadyThreads(){
     //Defense Thread
     defense_mind_input = malloc(sizeof(MindInput));
-	struct fann* defense_mind = fann_create_from_file(NeuralNetFolderLocation"/Defense_dark_souls_ai.net");
+	struct fann* defense_mind = fann_create_from_file("C:/Users/unda/Documents/Neural Nets/Defense_dark_souls_ai.net");
     if (defense_mind == NULL){
         printf("Defense_dark_souls_ai.net neural network file not found");
         return EXIT_FAILURE;
@@ -175,7 +175,7 @@ int ReadyThreads(){
 
     //Attack Thread
     attack_mind_input = malloc(sizeof(MindInput));
-	struct fann* attack_mind = fann_create_from_file(NeuralNetFolderLocation"/Attack_dark_souls_ai.net");
+	struct fann* attack_mind = fann_create_from_file("C:/Users/unda/Documents/Neural Nets/Attack_dark_souls_ai.net");
     if (attack_mind == NULL){
         printf("Attack_dark_souls_ai.net neural network file not found");
         return EXIT_FAILURE;
