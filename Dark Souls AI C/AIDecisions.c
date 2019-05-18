@@ -96,7 +96,7 @@ void InstinctDecisionMaking(InstinctDecision* instinct_decision){
 		//in position to bs
 		if (BackStabStateDetected == 2){
 			instinct_decision->priority_decision = EnterAttackSubroutine;
-			instinct_decision->subroutine_id.attackid = GhostHitId;
+			instinct_decision->subroutine_id.attackid = quickkickId;
 		}
 		//try and move up for bs
 		else if (BackStabStateDetected == 1){
