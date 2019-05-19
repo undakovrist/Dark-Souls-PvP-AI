@@ -45,7 +45,18 @@ void InstinctDecisionMaking(InstinctDecision* instinct_decision){
 			//if we got hit already, and are in a state we can't dodge from, toggle escape the next hit
 			if (Player.subanimation == PoiseBrokenSubanimation && (Enemy.dodgeTimeRemaining > 0.2 && Enemy.dodgeTimeRemaining < 0.3))
 			{
-				instinct_decision->subroutine_id.defenseid = ToggleEscapeId;
+				switch (EnemyWeaponClass)
+				{
+				case 0:
+					instinct_decision->subroutine_id.defenseid = StandardRollId;
+					break;
+				case 1:
+					instinct_decision->subroutine_id.defenseid = ToggleEscapeId;
+					break;
+				default:
+					instinct_decision->subroutine_id.defenseid = ToggleEscapeId;
+					break;
+				}
 				return;
 			}
 			//while staggered, dont enter any subroutines
@@ -96,7 +107,7 @@ void InstinctDecisionMaking(InstinctDecision* instinct_decision){
 		//in position to bs
 		if (BackStabStateDetected == 2){
 			instinct_decision->priority_decision = EnterAttackSubroutine;
-			instinct_decision->subroutine_id.attackid = quickkickId;
+			instinct_decision->subroutine_id.attackid = GhostHitId;
 		}
 		//try and move up for bs
 		else if (BackStabStateDetected == 1){
