@@ -9,7 +9,7 @@ ullong player_base_add = 0x00F7D644;
 
 //NOTE: this is curently hardcoded until i find a dynamic way
 //How To Find: Increase this value until the attack ends with the AI turned away from the enemy. Decrease till it doesnt.
-#define WeaponGhostHitTime_CB 0.245
+float WeaponGhostHitTime;
 
 static bool waitingForAnimationTimertoCatchUp = false;
 
@@ -34,6 +34,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
     if (characterId == EnemyId){
         AppendAnimationTypeEnemy(Enemy.animationType_id);
     }
+	//read current passiveStateId
+	ReadProcessMemory(processHandle, (LPCVOID)(c->passiveState_address), &(c->passiveState_id), 2, 0);
+	guiPrint("%d,3:Animation Type:%d", characterId, c->passiveState_id);
+	//remember enemy passiveStateIds
+	if (characterId == EnemyId) {
+		AppendpassiveStateEnemy(Enemy.passiveState_id);
+	}
     //read hp
     ReadProcessMemory(processHandle, (LPCVOID)(c->hp_address), &(c->hp), 4, 0);
     guiPrint("%d,4:HP:%d", characterId, c->hp);
@@ -48,9 +55,131 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
     //read what weapon they currently have in right hand
     ReadProcessMemory(processHandle, (LPCVOID)(c->r_weapon_address), &(c->r_weapon_id), 4, 0);
     guiPrint("%d,6:R Weapon:%d", characterId, c->r_weapon_id);
+
+	//read weapon type and set variable for switch case for choosing attack options
+	//most of these will assume you're using a "fast" weapon in each class. May not matter for curved/thrusting swords. May account for slow weaps later, idk
+	// Daggers = 0
+	if ((Player.r_weapon_id >= 100000 && Player.r_weapon_id <= 104950) || (Player.r_weapon_id >= 9011000 && Player.r_weapon_id <= 9011950)) {
+		WeaponRoutines = 0;
+	} // Straight swords = 1
+	else if (Player.r_weapon_id >= 200000 && Player.r_weapon_id <= 212950) {
+		WeaponRoutines = 1;
+	} // Greatswords = 2
+	else if ((Player.r_weapon_id >= 300000 && Player.r_weapon_id <= 315950) || (Player.r_weapon_id >= 9012000 && Player.r_weapon_id <= 9013950) ||(Player.r_weapon_id >= 9020000 && Player.r_weapon_id <= 9020950)) {
+		WeaponRoutines = 2;
+	} // Ultra-Greatswords = 3
+	else if (Player.r_weapon_id >= 350000 && Player.r_weapon_id <= 355950) {
+		WeaponRoutines = 3;
+	} // Curved Sword = 4
+	else if ((Player.r_weapon_id >= 400000 && Player.r_weapon_id <= 406950) || (Player.r_weapon_id >= 9010000 && Player.r_weapon_id <= 9010950)) {
+		WeaponRoutines = 4;
+	} // Curved Greatswords = 5
+	else if (Player.r_weapon_id >= 450000 && Player.r_weapon_id <= 453950) {
+		WeaponRoutines = 5;
+	} // Katanas = 6
+	else if (Player.r_weapon_id >= 500000 && Player.r_weapon_id <= 503950) {
+		WeaponRoutines = 6;
+	} // Thrusting Swords = 7
+	else if (Player.r_weapon_id >= 600000 && Player.r_weapon_id <= 604950) {
+		WeaponRoutines = 7;
+	} // Hand Axe = 8 (Too different from normal axes)
+	else if (Player.r_weapon_id >= 700000 && Player.r_weapon_id <= 700950) {
+		WeaponRoutines = 8;
+	} // Axes = 9
+	else if (Player.r_weapon_id >= 701000 && Player.r_weapon_id <= 705950) {
+		WeaponRoutines = 9;
+	} // BKGA = 10 (Other greataxes are just way too bad to bother with, and very different)
+	else if (Player.r_weapon_id >= 753000 && Player.r_weapon_id <= 753950) {
+		WeaponRoutines = 10;
+	} // Hammers = 11
+	else if (Player.r_weapon_id >= 800000 && Player.r_weapon_id <= 812950) {
+		WeaponRoutines = 11;
+	} // Great Hammers = 12 (I really need to code rolling attack for this)
+	else if (Player.r_weapon_id >= 850000 && Player.r_weapon_id <= 857950) {
+		WeaponRoutines = 12;
+	} // Fist Weapons = 13 uhhhh I guess
+	else if (Player.r_weapon_id >= 900000 && Player.r_weapon_id <= 904950) {
+		WeaponRoutines = 13;
+	} // All Spears = 14
+	else if ((Player.r_weapon_id >= 1000000 && Player.r_weapon_id <= 1054950) || (Player.r_weapon_id >= 9016000 && Player.r_weapon_id <= 9016950)) {
+		WeaponRoutines = 14;
+	} // Halberd = 15 (Different from other halberds)
+	else if (Player.r_weapon_id >= 1100000 && Player.r_weapon_id <= 1100950) {
+		WeaponRoutines = 15;
+	} // Other Halberds = 16
+	else if (Player.r_weapon_id >= 1101000 && Player.r_weapon_id <= 1107950) {
+		WeaponRoutines = 16;
+	} // Scythes = 17
+	else if (Player.r_weapon_id >= 1150000 && Player.r_weapon_id <= 1151950) {
+		WeaponRoutines = 17;
+	} // If for some reason it's not found, just treat it as a fist weapon
+	else {
+		WeaponRoutines = 13;
+	}
+
+	switch (WeaponRoutines) //Choose timings for ghost strikes, based on weapon type
+	{
+	case 0:
+		WeaponGhostHitTime = 0.16;
+		break;
+	case 1: //Random guess, should test closer. Straight swords
+		WeaponGhostHitTime = 0.22;
+		break;
+	case 2:
+		WeaponGhostHitTime = 0.48;
+		break;
+	case 4:
+		WeaponGhostHitTime = 0.22;
+		break;
+	case 5:
+		WeaponGhostHitTime = 0.46;
+		break;
+	case 6:
+		WeaponGhostHitTime = 0.24;
+		break;
+	case 7:
+		WeaponGhostHitTime = 0.28;
+		break;
+	case 8: //Handaxe, another guess
+		WeaponGhostHitTime = 0.15;
+		break;
+	case 9: //Axes, guess
+		WeaponGhostHitTime = 0.20;
+		break;
+	case 10:
+		WeaponGhostHitTime = 0.52;
+		break;
+	case 11: //Hammers, guess
+		WeaponGhostHitTime = 0.25;
+		break;
+	case 13: //Fist weaps, who cares, guess
+		WeaponGhostHitTime = 0.2;
+		break;
+	case 14:
+		WeaponGhostHitTime = 0.22;
+		break;
+	case 15:
+		WeaponGhostHitTime = 0.28;
+	case 16:
+		WeaponGhostHitTime = 0.28;
+		break;
+	case 17:
+		WeaponGhostHitTime = 0.46;
+		break;
+	default:
+		WeaponGhostHitTime = 0.22;
+		break;
+	}
     //read what weapon they currently have in left hand
     ReadProcessMemory(processHandle, (LPCVOID)(c->l_weapon_address), &(c->l_weapon_id), 4, 0);
     guiPrint("%d,7:L Weapon:%d", characterId, c->l_weapon_id);
+	//read if Pyromancy Flame is currently equipped and set another switch case flag
+	//if (c->r_weapon_id >= 1330000 && c->r_weapon_id <= 1332950) {
+	//	isPyromancy = 1;
+	//}
+	//else {
+	//	isPyromancy = 0;
+	//}
 
     //read if hurtbox is active on enemy weapon
     if (c->hurtboxActive_address){
@@ -60,6 +189,31 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
             c->subanimation = AttackSubanimationActiveDuringHurtbox;
         }
     }
+
+	//Check enemies weapon type. If a fast weap, will disable toggle escapes
+	//Daggers/Straight Swords
+	if (Enemy.r_weapon_id >= 100000 && Enemy.r_weapon_id <= 212950) {
+		EnemyWeaponClass = 0;
+	} // Curved Sword
+	else if (Enemy.r_weapon_id >= 400000 && Enemy.r_weapon_id <= 406950) {
+		EnemyWeaponClass = 0;
+	} // Katanas, Thrusting Swords, Hand Axe
+	else if (Enemy.r_weapon_id >= 500000 && Enemy.r_weapon_id <= 700950) {
+		EnemyWeaponClass = 0;
+	} // Fist Weapons/Spears
+	else if (Enemy.r_weapon_id >= 900000 && Enemy.r_weapon_id <= 1054950) {
+		EnemyWeaponClass = 0;
+	} // GT/DST
+	else if (Enemy.r_weapon_id >= 9010000 && Enemy.r_weapon_id <= 9011950) {
+		EnemyWeaponClass = 0;
+	} // Four-Pronged Plow
+	else if (Enemy.r_weapon_id >= 9016000 && Enemy.r_weapon_id <= 9016950) {
+		EnemyWeaponClass = 0;
+	} // GS/UGS/CGS/Axe/GA/Hammer/GH/Halb can be toggled
+	else {
+		EnemyWeaponClass = 1;
+	}
+
     int animationid;
     ReadProcessMemory(processHandle, (LPCVOID)(c->animationId_address), &animationid, 4, 0);
     //need a second one b/c the game has a second one. the game has a second one b/c two animations can overlap.
@@ -173,7 +327,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
             }
 
             // time before the windup ends where we can still alter rotation (only for player)
-			if (animationTimer > WeaponGhostHitTime_CB && timeDelta >= -0.3 && characterId == PlayerId){
+			if (animationTimer > WeaponGhostHitTime && timeDelta >= -0.3 && characterId == PlayerId){
                 c->subanimation = AttackSubanimationWindupGhostHit;
             }
 
@@ -252,6 +406,7 @@ void ReadPointerEndAddresses(HANDLE processHandle){
     Enemy.location_y_address = FindPointerAddr(processHandle, Enemy_base_add, Enemy_loc_y_offsets_length, Enemy_loc_y_offsets);
     Enemy.rotation_address = FindPointerAddr(processHandle, Enemy_base_add, Enemy_rotation_offsets_length, Enemy_rotation_offsets);
     Enemy.animationType_address = FindPointerAddr(processHandle, Enemy_base_add, Enemy_animationType_offsets_length, Enemy_animationType_offsets);
+	Enemy.passiveState_address = FindPointerAddr(processHandle, Enemy_base_add, Enemy_passiveState_offsets_length, Enemy_passiveState_offsets);
     Enemy.hp_address = FindPointerAddr(processHandle, Enemy_base_add, Enemy_hp_offsets_length, Enemy_hp_offsets);
     Enemy.stamina_address = 0;
     Enemy.r_weapon_address = FindPointerAddr(processHandle, Enemy_base_add, Enemy_r_weapon_offsets_length, Enemy_r_weapon_offsets);
@@ -274,6 +429,7 @@ void ReadPointerEndAddresses(HANDLE processHandle){
     Player.location_y_address = FindPointerAddr(processHandle, player_base_add, Player_loc_y_offsets_length, Player_loc_y_offsets);
     Player.rotation_address = FindPointerAddr(processHandle, player_base_add, Player_rotation_offsets_length, Player_rotation_offsets);
     Player.animationType_address = FindPointerAddr(processHandle, player_base_add, Player_animationType_offsets_length, Player_animationType_offsets);
+	Player.passiveState_address = FindPointerAddr(processHandle, player_base_add, Player_passiveState_offsets_length, Player_passiveState_offsets);
     Player.hp_address = FindPointerAddr(processHandle, player_base_add, Player_hp_offsets_length, Player_hp_offsets);
     Player.stamina_address = FindPointerAddr(processHandle, player_base_add, Player_stamina_offsets_length, Player_stamina_offsets);
     Player.r_weapon_address = FindPointerAddr(processHandle, player_base_add, Player_r_weapon_offsets_length, Player_r_weapon_offsets);
@@ -285,7 +441,8 @@ void ReadPointerEndAddresses(HANDLE processHandle){
 	Player.animationId3_address = FindPointerAddr(processHandle, player_base_add, Player_animationID3_offsets_length, Player_animationID3_offsets);
     Player.hurtboxActive_address = 0;
     Player.readyState_address = FindPointerAddr(processHandle, player_base_add, Player_readyState_offsets_length, Player_readyState_offsets);
-    Player.velocity_address = 0;
+	Player.velocity_address = 0;
+   // Player.velocity_address = (processHandle, player_base_add, player_velocity_offsets_length, player_velocity_offsets);
     Player.locked_on_address = FindPointerAddr(processHandle, player_base_add, Player_Lock_on_offsets_length, Player_Lock_on_offsets);
     Player.twoHanding_address = FindPointerAddr(processHandle, player_base_add, Player_twohanding_offsets_length, Player_twohanding_offsets);
     Player.staminaRecoveryRate_address = 0;

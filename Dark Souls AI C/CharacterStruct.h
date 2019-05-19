@@ -21,6 +21,9 @@ typedef struct {
 	//current animation type id
 	ullong animationType_address;
     unsigned short animationType_id;
+	//current passiveStateId
+	ullong passiveState_address;
+	unsigned short passiveState_id;
 	//hp
 	ullong hp_address;
 	unsigned int hp;
@@ -74,6 +77,10 @@ typedef struct {
     int bleedStatus;
 } Character;
 
+int WeaponRoutines;
+int isPyromancy;
+int EnemyWeaponClass;
+
 //initalize the phantom and player
 Character Enemy;
 Character Player;
@@ -114,6 +121,11 @@ static const int Enemy_animationType_offsets[] = { 0x4, 0x4, 0x28, 0x54, 0x1EC }
 static const int Player_animationType_offsets[] = { 0x288, 0xC, 0xC, 0x10, 0x41C };
 static const int Enemy_animationType_offsets_length = 5;
 static const int Player_animationType_offsets_length = 5;
+//offsets and length for PassiveState id
+static const int Enemy_passiveState_offsets[] = { 0x3C, 0x0C, 0x20, 0x28, 0x54, 0x1F0 };
+static const int Player_passiveState_offsets[] = { 0x288, 0xC, 0xC, 0x10, 0x420 };
+static const int Enemy_passiveState_offsets_length = 6;
+static const int Player_passiveState_offsets_length = 5;
 //hp
 static const int Enemy_hp_offsets[] = { 0x4, 0x4, 0x2D4 };
 static const int Player_hp_offsets[] = { 0x288, 0xC, 0x330, 0x4, 0x2D4 };
