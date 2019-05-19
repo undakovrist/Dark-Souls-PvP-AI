@@ -36,14 +36,14 @@ typedef enum AttackId_E {
 	AtkNoneId,//should only be used for initalizing. Should never reach AiMethod code
 	MoveUpId,
 	GhostHitId,
-	//DeadAngleId,
+	DeadAngleId,
 	BackstabId,
 	TwoHandId,
 	SwitchWeaponId,
 	HealId,
 	PivotBSId,
-	kickId,
-	quickkickId,
+	KickId,
+	//PyroId
 } AttackId;
 
 #define SubroutineActive 1
