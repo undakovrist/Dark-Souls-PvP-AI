@@ -58,8 +58,28 @@ DWORD WINAPI DefenseMindProcess(void* data){
 		}
 
 		//if the enemy is close behind us, and there's no possibilty of chain(which a bs cancel can't prevent) try to damage cancel their bs.
-		if (BackstabDetection(&Enemy, &Player, mostRecentDistance) && !Player.in_backstab && !Enemy.in_backstab){
-			AttackChoice = quickkickId;
+		if (BackstabDetection(&Enemy, &Player, mostRecentDistance) && !Player.in_backstab && !Enemy.in_backstab) {
+			switch (WeaponRoutines)
+			{
+			case 0:
+				AttackChoice = GhostHitId;
+				break;
+			case 4:
+				AttackChoice = GhostHitId;
+				break;
+			case 6:
+				AttackChoice = GhostHitId;
+				break;
+			case 7:
+				AttackChoice = GhostHitId;
+				break;
+			case 8:
+				AttackChoice = GhostHitId;
+				break;
+			default:
+				AttackChoice = KickId;
+				break;
+			}
 		}
 
         //prevent rerun
@@ -122,29 +142,213 @@ DWORD WINAPI AttackMindProcess(void* data){
 		//TODO chain bs's. if enemy in bs, try chain
 
 		//Decision about standard attack
-        if (
+		if (
 			!BackstabMetaOnly &&
-            //sanity checks
-            mostRecentDistance <= Player.weaponRange && //in range
-            Player.stamina > 20 && //just to ensure we have enough to roll
-            Player.bleedStatus > 40 && //more than one attack to proc bleed
-            //static checks for attack
-            ((
-                (Player.stamina > 90) && //safety buffer for stamina
-                (Enemy.subanimation >= LockInSubanimation && Enemy.subanimation < SubanimationNeutral)  //enemy in vulnerable state, and can't immediatly transition
-            ) ||
-            (*out > 0.5)//neural network says so
-           ))
-        {
-            //randomly choose dead angle or ghost hit
-            //throw off enemy predictions
-            if (rand() > RAND_MAX / 2){
-                AttackChoice = kickId;
-            }
-            else{
-                AttackChoice = GhostHitId;
-            }
-        }
+			//sanity checks
+			mostRecentDistance <= Player.weaponRange && //in range
+			Player.stamina > 20 && //just to ensure we have enough to roll
+			Player.bleedStatus > 40 && //more than one attack to proc bleed
+			//static checks for attack
+			((
+			(Player.stamina > 90) && //safety buffer for stamina
+				(Enemy.subanimation >= LockInSubanimation && Enemy.subanimation < SubanimationNeutral)  //enemy in vulnerable state, and can't immediatly transition
+				) ||
+				(*out > 0.5)//neural network says so
+				))
+		{
+			//randomly choose offensive options based on weapon
+			//throw off enemy predictions
+			switch (WeaponRoutines) {
+			case 2: //Greatswords
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;					
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+				break;
+			}
+			case 3: //UGS
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = DeadAngleId;
+					break;
+				}
+				break;
+			}
+			case 4: //Curved Swords
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = DeadAngleId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+				break;
+			}
+			case 5: //Curved Greatswords
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+				break;
+			}
+			case 6: //Katanas
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+			}
+			case 7: //Thrusting Swords
+			{
+				AttackChoice = GhostHitId;
+				break;
+			}
+			case 8: //Hand Axe
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+				break;
+			}
+			case 9: //Other Axes
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+				break;
+			}
+			case 10: //BKGA
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+				break;
+			}
+			case 11: //Hammers
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+				break;
+			}
+			case 12: //Great Hammers (Kick spam for now I guess)
+				AttackChoice = KickId;
+				break;
+			case 13: //Fist Weaps
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+			}
+			case 14: //Spears
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+			}
+			case 15: //Halberd
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+			}
+			case 16: //Other Halberds
+			{
+				int weaponRandom = rand(1);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					break;
+				}
+			}
+			default: //Dagger, SS (scythes for now)
+			{
+				int weaponRandom = rand(2);
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					break;
+				case 1:
+					AttackChoice = DeadAngleId;
+					break;
+				case 2:
+					AttackChoice = GhostHitId;
+					break;
+				}
+			}
+			break;
+			}
+		}
 
         //prevent rerun
         attack_mind_input->runNetwork = false;
