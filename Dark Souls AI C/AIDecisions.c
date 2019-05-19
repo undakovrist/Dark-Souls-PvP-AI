@@ -48,12 +48,15 @@ void InstinctDecisionMaking(InstinctDecision* instinct_decision){
 				switch (EnemyWeaponClass)
 				{
 				case 0:
+					printf("Fast weap, don't toggle");
 					instinct_decision->subroutine_id.defenseid = StandardRollId;
 					break;
 				case 1:
+					printf("Slow weap, toggle escape");
 					instinct_decision->subroutine_id.defenseid = ToggleEscapeId;
 					break;
 				default:
+					printf("Unknown, attempt toggle escape");
 					instinct_decision->subroutine_id.defenseid = ToggleEscapeId;
 					break;
 				}
