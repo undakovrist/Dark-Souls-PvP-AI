@@ -471,7 +471,8 @@ static void kick(JOYSTICK_POSITION * iReport) {
 	}
 
 	//if kick lands and weapon is fast enough, proceed to r1
-	switch (WeaponRoutines)
+	if ((curTime > 275) && ((Enemy.passiveState_id == 51) || (Enemy.passiveState_id == 56))) {
+	switch (Player.WeaponRoutines)
 	{
 	case 3:
 		break;
@@ -484,11 +485,10 @@ static void kick(JOYSTICK_POSITION * iReport) {
 	case 17:
 		break;
 	default:
-		if ((curTime > 275) && ((Enemy.passiveState_id == 51) || (Enemy.passiveState_id == 56))) {
-			guiPrint(LocationState",1:r1");
+		guiPrint(LocationState",1:r1");
 			iReport->lButtons |= r1;
+			break;
 		}
-		break;
 	}
 }
 

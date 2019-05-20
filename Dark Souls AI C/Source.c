@@ -24,16 +24,59 @@ int SetupandLoad(){
     memset(&Player, 0, sizeof(Character));
     //TODO temp hardcoding
     Enemy.weaponRange = 6;
-    Player.weaponRange = 2.5;
+	/*switch (Player.WeaponRoutines)
+	{ //Most of these are guesses
+	case 0:
+		Player.weaponRange = 1;
+		break;
+	case 1:
+		Player.weaponRange = 2;
+		break;
+	case 2:
+		Player.weaponRange = 2.5;
+		break;
+	case 3:
+		Player.weaponRange = 3;
+		break;
+	case 5:
+		Player.weaponRange = 3;
+		break;
+	case 8:
+		Player.weaponRange = 1.5;
+		break;
+	case 9:
+		Player.weaponRange = 2;
+		break;
+	case 10:
+		Player.weaponRange = 3;
+		break;
+	case 11:
+		Player.weaponRange = 2;
+		break;
+	case 13:
+		Player.weaponRange = 1;
+		break;
+	case 14:
+		Player.weaponRange = 3.5;
+		break;
+	case 15:
+		Player.weaponRange = 3;
+		break;
+	case 16:
+		Player.weaponRange = 3;
+		break;
+	case 17:
+		Player.weaponRange = 3;
+		break;
+	default:
+		Player.weaponRange = 2.5;
+		break;
+	}*/
 
     //get access to dark souls memory
     char * processName = "DARKSOULS.exe";
     //get the process id from the name
     int processId = GetProcessIdFromName(processName);
-	if (processId == -1) {
-		printf("Unable to find DarkSouls.exe\n");
-		return EXIT_FAILURE;
-	}
     //open the handle
     processHandle = OpenProcess(PROCESS_ALL_ACCESS, 0, processId);
     //get the base address of the process and append all other addresses onto it

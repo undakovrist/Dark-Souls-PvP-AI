@@ -75,9 +75,10 @@ typedef struct {
     //current bleed state
     ullong bleedStatus_address;
     int bleedStatus;
+	//check weapon type for attacks
+	int WeaponRoutines;
 } Character;
 
-int WeaponRoutines;
 int isPyromancy;
 int EnemyWeaponClass;
 

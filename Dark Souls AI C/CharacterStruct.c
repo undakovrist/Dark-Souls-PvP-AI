@@ -60,113 +60,135 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	//most of these will assume you're using a "fast" weapon in each class. May not matter for curved/thrusting swords. May account for slow weaps later, idk
 	// Daggers = 0
 	if ((Player.r_weapon_id >= 100000 && Player.r_weapon_id <= 104950) || (Player.r_weapon_id >= 9011000 && Player.r_weapon_id <= 9011950)) {
-		WeaponRoutines = 0;
+		Player.WeaponRoutines = 0;
 	} // Straight swords = 1
 	else if (Player.r_weapon_id >= 200000 && Player.r_weapon_id <= 212950) {
-		WeaponRoutines = 1;
+		Player.WeaponRoutines = 1;
 	} // Greatswords = 2
 	else if ((Player.r_weapon_id >= 300000 && Player.r_weapon_id <= 315950) || (Player.r_weapon_id >= 9012000 && Player.r_weapon_id <= 9013950) ||(Player.r_weapon_id >= 9020000 && Player.r_weapon_id <= 9020950)) {
-		WeaponRoutines = 2;
+		Player.WeaponRoutines = 2;
 	} // Ultra-Greatswords = 3
 	else if (Player.r_weapon_id >= 350000 && Player.r_weapon_id <= 355950) {
-		WeaponRoutines = 3;
+		Player.WeaponRoutines = 3;
 	} // Curved Sword = 4
 	else if ((Player.r_weapon_id >= 400000 && Player.r_weapon_id <= 406950) || (Player.r_weapon_id >= 9010000 && Player.r_weapon_id <= 9010950)) {
-		WeaponRoutines = 4;
+		Player.WeaponRoutines = 4;
 	} // Curved Greatswords = 5
 	else if (Player.r_weapon_id >= 450000 && Player.r_weapon_id <= 453950) {
-		WeaponRoutines = 5;
+		Player.WeaponRoutines = 5;
 	} // Katanas = 6
 	else if (Player.r_weapon_id >= 500000 && Player.r_weapon_id <= 503950) {
-		WeaponRoutines = 6;
+		Player.WeaponRoutines = 6;
 	} // Thrusting Swords = 7
 	else if (Player.r_weapon_id >= 600000 && Player.r_weapon_id <= 604950) {
-		WeaponRoutines = 7;
+		Player.WeaponRoutines = 7;
 	} // Hand Axe = 8 (Too different from normal axes)
 	else if (Player.r_weapon_id >= 700000 && Player.r_weapon_id <= 700950) {
-		WeaponRoutines = 8;
+		Player.WeaponRoutines = 8;
 	} // Axes = 9
 	else if (Player.r_weapon_id >= 701000 && Player.r_weapon_id <= 705950) {
-		WeaponRoutines = 9;
+		Player.WeaponRoutines = 9;
 	} // BKGA = 10 (Other greataxes are just way too bad to bother with, and very different)
 	else if (Player.r_weapon_id >= 753000 && Player.r_weapon_id <= 753950) {
-		WeaponRoutines = 10;
+		Player.WeaponRoutines = 10;
 	} // Hammers = 11
 	else if (Player.r_weapon_id >= 800000 && Player.r_weapon_id <= 812950) {
-		WeaponRoutines = 11;
+		Player.WeaponRoutines = 11;
 	} // Great Hammers = 12 (I really need to code rolling attack for this)
 	else if (Player.r_weapon_id >= 850000 && Player.r_weapon_id <= 857950) {
-		WeaponRoutines = 12;
+		Player.WeaponRoutines = 12;
 	} // Fist Weapons = 13 uhhhh I guess
 	else if (Player.r_weapon_id >= 900000 && Player.r_weapon_id <= 904950) {
-		WeaponRoutines = 13;
+		Player.WeaponRoutines = 13;
 	} // All Spears = 14
 	else if ((Player.r_weapon_id >= 1000000 && Player.r_weapon_id <= 1054950) || (Player.r_weapon_id >= 9016000 && Player.r_weapon_id <= 9016950)) {
-		WeaponRoutines = 14;
+		Player.WeaponRoutines = 14;
 	} // Halberd = 15 (Different from other halberds)
 	else if (Player.r_weapon_id >= 1100000 && Player.r_weapon_id <= 1100950) {
-		WeaponRoutines = 15;
+		Player.WeaponRoutines = 15;
 	} // Other Halberds = 16
 	else if (Player.r_weapon_id >= 1101000 && Player.r_weapon_id <= 1107950) {
-		WeaponRoutines = 16;
+		Player.WeaponRoutines = 16;
 	} // Scythes = 17
 	else if (Player.r_weapon_id >= 1150000 && Player.r_weapon_id <= 1151950) {
-		WeaponRoutines = 17;
+		Player.WeaponRoutines = 17;
 	} // If for some reason it's not found, just treat it as a fist weapon
 	else {
-		WeaponRoutines = 13;
+		Player.WeaponRoutines = 13;
 	}
 
-	switch (WeaponRoutines) //Choose timings for ghost strikes, based on weapon type
-	{
+	//Set weapon range and ghost strike timings
+	switch (Player.WeaponRoutines)
+	{ //Most of these are guesses
 	case 0:
+		Player.weaponRange = 1;
 		WeaponGhostHitTime = 0.16;
 		break;
-	case 1: //Random guess, should test closer. Straight swords
+	case 1:
+		Player.weaponRange = 2;
 		WeaponGhostHitTime = 0.22;
 		break;
 	case 2:
-		WeaponGhostHitTime = 0.48;
+		Player.weaponRange = 2.5;
+		WeaponGhostHitTime = 0.44;
+		break;
+	case 3:
+		Player.weaponRange = 3;
+		WeaponGhostHitTime = 0.22;
 		break;
 	case 4:
+		Player.weaponRange = 2.5;
 		WeaponGhostHitTime = 0.22;
 		break;
 	case 5:
+		Player.weaponRange = 3;
 		WeaponGhostHitTime = 0.46;
 		break;
 	case 6:
-		WeaponGhostHitTime = 0.24;
+		Player.weaponRange = 2.5;
+		WeaponGhostHitTime = 0.235;
 		break;
 	case 7:
 		WeaponGhostHitTime = 0.28;
 		break;
-	case 8: //Handaxe, another guess
+	case 8:
+		Player.weaponRange = 1.5;
 		WeaponGhostHitTime = 0.15;
 		break;
-	case 9: //Axes, guess
+	case 9:
+		Player.weaponRange = 2;
 		WeaponGhostHitTime = 0.20;
 		break;
 	case 10:
+		Player.weaponRange = 3;
 		WeaponGhostHitTime = 0.52;
 		break;
-	case 11: //Hammers, guess
+	case 11:
+		Player.weaponRange = 2;
 		WeaponGhostHitTime = 0.25;
 		break;
-	case 13: //Fist weaps, who cares, guess
+	case 13:
+		Player.weaponRange = 1;
 		WeaponGhostHitTime = 0.2;
 		break;
 	case 14:
+		Player.weaponRange = 3.5;
 		WeaponGhostHitTime = 0.22;
 		break;
 	case 15:
+		Player.weaponRange = 3;
 		WeaponGhostHitTime = 0.28;
+		break;
 	case 16:
+		Player.weaponRange = 3;
 		WeaponGhostHitTime = 0.28;
 		break;
 	case 17:
+		Player.weaponRange = 3;
 		WeaponGhostHitTime = 0.46;
 		break;
 	default:
+		Player.weaponRange = 2.5;
 		WeaponGhostHitTime = 0.22;
 		break;
 	}
