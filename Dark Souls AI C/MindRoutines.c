@@ -1,4 +1,5 @@
 #include "MindRoutines.h"
+#include <stdlib.h>
 #pragma warning( disable: 4244 )
 
 #define SCALE(input, minVal, maxVal) (2 * ((float)input - minVal) / (maxVal - minVal) - 1)
@@ -59,7 +60,7 @@ DWORD WINAPI DefenseMindProcess(void* data){
 
 		//if the enemy is close behind us, and there's no possibilty of chain(which a bs cancel can't prevent) try to damage cancel their bs.
 		if (BackstabDetection(&Enemy, &Player, mostRecentDistance) && !Player.in_backstab && !Enemy.in_backstab) {
-			switch (WeaponRoutines)
+			switch (Player.WeaponRoutines)
 			{
 			case 0:
 				AttackChoice = GhostHitId;
@@ -117,7 +118,7 @@ DWORD WINAPI AttackMindProcess(void* data){
         }
         input[DistanceMemoryLENGTH] = SCALE(StaminaEstimationEnemy(), -40, 192);
         input[DistanceMemoryLENGTH + 1] = SCALE(Enemy.poise, 0, 120);
-        input[DistanceMemoryLENGTH + 2] = SCALE(PoiseDamageForAttack(Player.r_weapon_id, 46), 0, 80);
+        input[DistanceMemoryLENGTH + 2] = SCALE(PoiseDamageForAttack(503000, 46), 0, 80); //Currently hardcoded for CB because jankery reasons
         input[DistanceMemoryLENGTH + 3] = SCALE(Player.poise, 0, 120);
         input[DistanceMemoryLENGTH + 4] = SCALE(PoiseDamageForAttack(Enemy.r_weapon_id, 46), 0, 80);
         for (int i = 0; i < AIHPMemoryLENGTH; i++){
@@ -142,10 +143,18 @@ DWORD WINAPI AttackMindProcess(void* data){
 		//TODO chain bs's. if enemy in bs, try chain
 
 		//Decision about standard attack
+		printf("Making attack decision");
+		printf("Player weapon range = %f\n", Player.weaponRange);
+		printf("Most recent distance = %f\n", mostRecentDistance);
+		printf("Neural Network Result = %f\n", *out);
+		printf("Player Stamina = %d\n", Player.stamina);
+		printf("Player Bleed Status = %d\n", Player.bleedStatus);
+		printf("Enemy Subanimation = %d\n", Enemy.subanimation);
+		printf("Player weapon type = %d\n", Player.WeaponRoutines);
 		if (
 			!BackstabMetaOnly &&
 			//sanity checks
-			mostRecentDistance <= Player.weaponRange && //in range
+			(mostRecentDistance + .5) <= Player.weaponRange && //in range
 			Player.stamina > 20 && //just to ensure we have enough to roll
 			Player.bleedStatus > 40 && //more than one attack to proc bleed
 			//static checks for attack
@@ -156,18 +165,23 @@ DWORD WINAPI AttackMindProcess(void* data){
 				(*out > 0.5)//neural network says so
 				))
 		{
+			printf("Neural Network Result = %f\n", *out);
 			//randomly choose offensive options based on weapon
 			//throw off enemy predictions
-			switch (WeaponRoutines) {
+			switch (Player.WeaponRoutines) {
+				printf("successfully entered switch routine; choosing attack");
 			case 2: //Greatswords
 			{
 				int weaponRandom = rand(1);
+				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
-					AttackChoice = KickId;					
+					AttackChoice = KickId;		
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
 				break;
@@ -188,12 +202,15 @@ DWORD WINAPI AttackMindProcess(void* data){
 			case 4: //Curved Swords
 			{
 				int weaponRandom = rand(1);
+				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = DeadAngleId;
+					printf("Attempting dead angle");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
 				break;
@@ -214,12 +231,15 @@ DWORD WINAPI AttackMindProcess(void* data){
 			case 6: //Katanas
 			{
 				int weaponRandom = rand(1);
+				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attack ghost");
 					break;
 				}
 			}
@@ -334,19 +354,49 @@ DWORD WINAPI AttackMindProcess(void* data){
 			default: //Dagger, SS (scythes for now)
 			{
 				int weaponRandom = rand(2);
+				printf("Unkown weap, attack choice is %i\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Atempting kick");
 					break;
 				case 1:
 					AttackChoice = DeadAngleId;
+					printf("Atempting dead angle");
 					break;
 				case 2:
 					AttackChoice = GhostHitId;
+					printf("Atempting ghost");
 					break;
 				}
 			}
 			break;
+			}
+		}
+		else if (
+			!BackstabMetaOnly &&
+			//sanity checks
+			(mostRecentDistance <= 2) && //in range
+			Player.stamina > 20 && //just to ensure we have enough to roll
+			Player.bleedStatus > 40 && //more than one attack to proc bleed
+									   //static checks for attack
+			((
+			(Player.stamina > 90) && //safety buffer for stamina
+				(Enemy.subanimation == SubanimationNeutral)  //enemy in neutral state
+				) ||
+				(*out > 0.5)//neural network says so
+				))
+		{
+			switch (Player.WeaponRoutines) {
+				printf("Enemy neutral, kick if possible");
+			case 4:
+				AttackChoice = DeadAngleId;
+				break;
+			case 7:
+				break;
+			default:
+				AttackChoice = KickId;
+				break;
 			}
 		}
 
