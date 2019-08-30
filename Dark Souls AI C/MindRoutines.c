@@ -155,6 +155,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			!BackstabMetaOnly &&
 			//sanity checks
 			(mostRecentDistance + .5) <= Player.weaponRange && //in range
+			(mostRecentDistance + .5) >= Player.minimumRange && //outside minimum range
 			Player.stamina > 20 && //just to ensure we have enough to roll
 			Player.bleedStatus > 40 && //more than one attack to proc bleed
 			//static checks for attack
