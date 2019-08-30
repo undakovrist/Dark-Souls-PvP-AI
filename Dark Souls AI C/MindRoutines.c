@@ -118,7 +118,7 @@ DWORD WINAPI AttackMindProcess(void* data){
         }
         input[DistanceMemoryLENGTH] = SCALE(StaminaEstimationEnemy(), -40, 192);
         input[DistanceMemoryLENGTH + 1] = SCALE(Enemy.poise, 0, 120);
-        input[DistanceMemoryLENGTH + 2] = SCALE(PoiseDamageForAttack(503000, 46), 0, 80); //Currently hardcoded for CB because jankery reasons
+        input[DistanceMemoryLENGTH + 2] = SCALE(PoiseDamageForAttack(Player.r_weapon_id, 46), 0, 80); //Currently hardcoded for CB because jankery reasons
         input[DistanceMemoryLENGTH + 3] = SCALE(Player.poise, 0, 120);
         input[DistanceMemoryLENGTH + 4] = SCALE(PoiseDamageForAttack(Enemy.r_weapon_id, 46), 0, 80);
         for (int i = 0; i < AIHPMemoryLENGTH; i++){
@@ -172,7 +172,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 				printf("successfully entered switch routine; choosing attack");
 			case 2: //Greatswords
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
@@ -188,7 +188,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 3: //UGS
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -201,7 +201,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 4: //Curved Swords
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
@@ -217,7 +217,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 5: //Curved Greatswords
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -230,7 +230,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 6: //Katanas
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
@@ -250,7 +250,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 8: //Hand Axe
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -263,7 +263,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 9: //Other Axes
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -276,7 +276,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 10: //BKGA
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -289,7 +289,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 11: //Hammers
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -305,7 +305,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 				break;
 			case 13: //Fist Weaps
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -317,7 +317,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 14: //Spears
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -329,7 +329,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 15: //Halberd
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -341,7 +341,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			case 16: //Other Halberds
 			{
-				int weaponRandom = rand(1);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -353,7 +353,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			default: //Dagger, SS (scythes for now)
 			{
-				int weaponRandom = rand(2);
+				int weaponRandom = rand() % 3;
 				printf("Unkown weap, attack choice is %i\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
