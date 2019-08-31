@@ -362,8 +362,8 @@ DWORD WINAPI AttackMindProcess(void* data){
 					printf("Atempting kick");
 					break;
 				case 1:
-					AttackChoice = DeadAngleId;
-					printf("Atempting dead angle");
+					AttackChoice = NeutralR2Id;
+					printf("Atempting r2");
 					break;
 				case 2:
 					AttackChoice = GhostHitId;

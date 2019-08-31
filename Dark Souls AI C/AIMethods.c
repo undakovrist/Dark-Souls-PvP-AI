@@ -492,6 +492,42 @@ static void kick(JOYSTICK_POSITION * iReport) {
 	}
 }
 
+static void neutralR2(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:r2 time:%d", (curTime - startTimeAttack));
+
+	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
+	
+	guiPrint(LocationState",1:center joysticks");
+	iReport->wAxisX = MIDDLE;
+	iReport->wAxisY = MIDDLE;
+
+	//handle entering with lockon
+	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+		iReport->lButtons |= r3;
+	}
+
+	//hold attack button for a bit
+	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
+		guiPrint(LocationState",1:r2");
+		iReport->lButtons += r2;
+	}
+	//move toward enemy
+	if (curTime > startTimeAttack + inputDelayForKick) {
+		longTuple move;
+		angleToJoystick(angle, &move);
+		iReport->wAxisX = move.x_axis;
+		iReport->wAxisY = move.y_axis;
+		startTimeAttack = curTime;
+	}
+
+	if (curTime > startTimeAttack + 500) {
+		guiPrint(LocationState",0:end sub neutral r2");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(NeutralR2Id);
+	}
+}
+
 static startTimeHasntBeenReset = true;
 static void backStab(JOYSTICK_POSITION * iReport){
     guiPrint(LocationState",0:backstab");
@@ -712,6 +748,8 @@ void attack(JOYSTICK_POSITION * iReport, InstinctDecision* instinct_decision, un
 			case KickId:
 				kick(iReport);
 				break;
+			case NeutralR2Id:
+				neutralr2(iReport);
             default:
                 guiPrint(LocationState",0:ERROR Unknown attack action"
 										"priority_decision=%d\n"

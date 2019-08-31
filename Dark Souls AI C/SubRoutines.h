@@ -43,6 +43,7 @@ typedef enum AttackId_E {
 	HealId,
 	PivotBSId,
 	KickId,
+	NeutralR2Id,
 	//PyroId
 } AttackId;
 
