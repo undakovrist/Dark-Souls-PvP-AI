@@ -469,27 +469,6 @@ static void kick(JOYSTICK_POSITION * iReport) {
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
 		AppendLastSubroutineSelf(KickId);
 	}
-
-	//if kick lands and weapon is fast enough, proceed to r1
-	if ((curTime > 275) && ((Enemy.passiveState_id == 51) || (Enemy.passiveState_id == 56))) {
-	switch (Player.WeaponRoutines)
-	{
-	case 3:
-		break;
-	case 5:
-		break;
-	case 12:
-		break;
-	case 16:
-		break;
-	case 17:
-		break;
-	default:
-		guiPrint(LocationState",1:r1");
-			iReport->lButtons |= r1;
-			break;
-		}
-	}
 }
 
 static void neutralR2(JOYSTICK_POSITION * iReport) {

@@ -167,9 +167,35 @@ DWORD WINAPI AttackMindProcess(void* data){
 				))
 		{
 			printf("Neural Network Result = %f\n", *out);
+
+			//if enemy is kicked, react based on weapon type
+			if ((Enemy.passiveState_id == 51) || (Enemy.passiveState_id == 56)) {
+				switch (Player.WeaponRoutines)
+				{
+				case 3:
+					AttackChoice = PivotBSId;
+					break;
+				case 5:
+					AttackChoice = PivotBSId;
+					break;
+				case 12:
+					AttackChoice = PivotBSId;
+					break;
+				case 16:
+					AttackChoice = PivotBSId;
+					break;
+				case 17:
+					AttackChoice = PivotBSId;
+					break;
+				default:
+					guiPrint(LocationState",1:r1");
+					AttackChoice = GhostHitId;
+					break;
+				}
+			}
 			//randomly choose offensive options based on weapon
 			//throw off enemy predictions
-			switch (Player.WeaponRoutines) {
+			else switch (Player.WeaponRoutines) {
 				printf("successfully entered switch routine; choosing attack");
 			case 2: //Greatswords
 			{

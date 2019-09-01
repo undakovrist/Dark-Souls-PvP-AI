@@ -70,8 +70,8 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	} // Ultra-Greatswords = 3
 	else if (Player.r_weapon_id >= 350000 && Player.r_weapon_id <= 355950) {
 		Player.WeaponRoutines = 3;
-	} // Curved Sword = 4
-	else if ((Player.r_weapon_id >= 400000 && Player.r_weapon_id <= 406950) || (Player.r_weapon_id >= 9010000 && Player.r_weapon_id <= 9010950)) {
+	} // Curved Sword = 4 (Excluding QFS)
+	else if ((Player.r_weapon_id >= 400000 && Player.r_weapon_id <= 406505) || (Player.r_weapon_id >= 9010000 && Player.r_weapon_id <= 9010950)) {
 		Player.WeaponRoutines = 4;
 	} // Curved Greatswords = 5
 	else if (Player.r_weapon_id >= 450000 && Player.r_weapon_id <= 453950) {
@@ -120,75 +120,111 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	//Set weapon range and ghost strike timings
 	switch (Player.WeaponRoutines)
 	{ //Most of these are guesses
-	case 0:
+	case 0: //Daggers
 		Player.weaponRange = 1;
+		Player.minimumRange = 0;
 		WeaponGhostHitTime = 0.16;
 		break;
-	case 1:
+	case 1: //Straight Swords
 		Player.weaponRange = 2;
+		Player.minimumRange = 0;
 		WeaponGhostHitTime = 0.22;
 		break;
-	case 2:
+	case 2: //Greatswords
 		Player.weaponRange = 2.5;
-		WeaponGhostHitTime = 0.44;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.26;
 		break;
-	case 3:
-		Player.weaponRange = 3;
-		WeaponGhostHitTime = 0.22;
-		break;
-	case 4:
-		Player.weaponRange = 2.5;
-		WeaponGhostHitTime = 0.22;
-		break;
-	case 5:
-		Player.weaponRange = 3;
-		WeaponGhostHitTime = 0.46;
-		break;
-	case 6:
-		Player.weaponRange = 2.5;
-		WeaponGhostHitTime = 0.235;
-		break;
-	case 7:
-		WeaponGhostHitTime = 0.28;
-		break;
-	case 8:
-		Player.weaponRange = 1.5;
-		WeaponGhostHitTime = 0.15;
-		break;
-	case 9:
-		Player.weaponRange = 2;
-		WeaponGhostHitTime = 0.20;
-		break;
-	case 10:
-		Player.weaponRange = 3;
+	case 3: //UGS
+		Player.weaponRange = 3.2;
+		Player.minimumRange = 0;
 		WeaponGhostHitTime = 0.52;
 		break;
-	case 11:
-		Player.weaponRange = 2;
-		WeaponGhostHitTime = 0.25;
-		break;
-	case 13:
-		Player.weaponRange = 1;
-		WeaponGhostHitTime = 0.2;
-		break;
-	case 14:
-		Player.weaponRange = 3.5;
+	case 4: //Curved Swords
+		if (Player.r_weapon_id >= 406500 && Player.r_weapon_id <= 406505) { //QFS
+			Player.weaponRange = 3;
+		}
+		else {
+			Player.weaponRange = 2.5;
+		}
+		Player.minimumRange = 0;
 		WeaponGhostHitTime = 0.22;
 		break;
-	case 15:
+	case 5: //Curved Greatswords
 		Player.weaponRange = 3;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.6;
+		break;
+	case 6: //Katanas
+		Player.weaponRange = 3;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.24;
+		break;
+	case 7: //Thrusting Swords
+		Player.weaponRange = 3;
+		Player.minimumRange = 0;
 		WeaponGhostHitTime = 0.28;
 		break;
-	case 16:
+	case 8: //Hand Axe
+		Player.weaponRange = 2.5;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.16;
+		break;
+	case 9: //Axes
+		Player.weaponRange = 2;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.20;
+		break;
+	case 10: //BKGA
 		Player.weaponRange = 3;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.26;
+		break;
+	case 11: //Hammers
+		Player.weaponRange = 3;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.43;
+		break;
+	case 13: //Fist
+		Player.weaponRange = 1;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.2;
+		break;
+	case 14: //Spears
+		  //Demon's Spear
+		if (Player.r_weapon_id >= 1003000 && Player.r_weapon_id <= 1003005) {
+			Player.weaponRange = 5;
+		} //Pike
+		else if (Player.r_weapon_id >= 1005000 && Player.r_weapon_id <= 1005905) {
+			Player.weaponRange = 4.25;
+		} //Silver Knight Spear
+		else if (Player.r_weapon_id >= 1006000 && Player.r_weapon_id <= 1006005) {
+			Player.weaponRange = 4.75;
+		}
+		else {
+			Player.weaponRange = 3.5;
+		}
+		Player.minimumRange = 1.5;
+		WeaponGhostHitTime = 0.3;
+		break;
+	case 15: //Halberd
+		Player.weaponRange = 3;
+		Player.minimumRange = 0;
 		WeaponGhostHitTime = 0.28;
 		break;
-	case 17:
+	case 16: //Other Halberds
 		Player.weaponRange = 3;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.28;
+		break;
+	case 17: //Scythes
+		Player.weaponRange = 3;
+		Player.minimumRange = 0;
 		WeaponGhostHitTime = 0.46;
 		break;
 	default:
 		Player.weaponRange = 2.5;
+		Player.minimumRange = 0;
 		WeaponGhostHitTime = 0.22;
 		break;
 	}
