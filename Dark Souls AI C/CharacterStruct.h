@@ -38,6 +38,11 @@ typedef struct {
 	unsigned int l_weapon_id;
 	//hurtbox size(range) of weapon. Bows/Magic have high range
 	float weaponRange;
+	//minimum distance from which bot will attack
+	//an attempt to prevent bot from being parried or otherwise punished while using very long weaps
+	float minimumRange;
+	//hurtbox size of spell
+	float spellRange;
     //encompases the various states of an animation
     unsigned int subanimation;
     //the current animation id
@@ -79,7 +84,7 @@ typedef struct {
 	int WeaponRoutines;
 } Character;
 
-int isPyromancy;
+int isSpellTool;
 int EnemyWeaponClass;
 
 //initalize the phantom and player

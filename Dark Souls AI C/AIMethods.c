@@ -224,6 +224,60 @@ static void ReverseRollBS(JOYSTICK_POSITION * iReport){
     }
 }
 
+static void BarrelLeft(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:Barrel Roll Left time:%d", (curTime - startTimeDefense));
+
+	//have to lock on to reverse roll (also handle for being locked on already)
+	if (curTime < startTimeDefense + TimeForR3ToTrigger && !Player.locked_on) {
+		iReport->lButtons = r3;
+		guiPrint(LocationState",1:lockon barrel left");
+	}
+
+	//left then circle to roll and omnistep via delockon
+	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon &&
+		curTime < startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction) {
+		iReport->wAxisX = XLEFT;//Move left stick all the way left
+		iReport->lButtons = r3 + circle;
+		guiPrint(LocationState",1:barrel roll left");
+		iReport->wAxisX = XRIGHT;//Move left stick right to switch direction
+	}
+
+	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction)
+	{
+		guiPrint(LocationState",0:end BarrelLeft");
+		subroutine_states[DodgeStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(BarrelLeftId);
+	}
+}
+
+static void BarrelRight(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:Barrel Roll right time:%d", (curTime - startTimeDefense));
+
+	//have to lock on to reverse roll (also handle for being locked on already)
+	if (curTime < startTimeDefense + TimeForR3ToTrigger && !Player.locked_on) {
+		iReport->lButtons = r3;
+		guiPrint(LocationState",1:lockon barrel right");
+	}
+
+	//left then circle to roll and omnistep via delockon
+	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon &&
+		curTime < startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction) {
+		iReport->wAxisX = XRIGHT;//Move left stick all the way right
+		iReport->lButtons = r3 + circle;
+		guiPrint(LocationState",1:barrel roll right");
+		iReport->wAxisX = XLEFT;//Move left stick left to switch direction
+	}
+
+	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction)
+	{
+		guiPrint(LocationState",0:end BarrelRight");
+		subroutine_states[DodgeStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(BarrelRightId);
+	}
+}
+
 //this is more of a bandaid to the fact that the ai is ever getting hit
 static void ToggleEscape(JOYSTICK_POSITION * iReport){
     long curTime = clock();
@@ -321,6 +375,18 @@ void dodge(JOYSTICK_POSITION * iReport, InstinctDecision* instinct_decision, uns
 			case ParryId:
 				ParrySubroutine(iReport);
 				break;
+			case BarrelLeftId:
+				BarrelLeft(iReport);
+				break;
+			case BarrelRightId:
+				BarrelRight(iReport);
+				break;
+			//case BarrelAwayLeftId:
+				//BarrelAwayLeft(iReport);
+				//break;
+			//case BarrelAwayRightId:
+				//BarrelAwayRight(iReport);
+				//break;
             //may not do anything even though attack detected (ex we're staggered)
             default:
                 subroutine_states[DodgeStateIndex] = NoSubroutineActive;
@@ -471,7 +537,7 @@ static void kick(JOYSTICK_POSITION * iReport) {
 	}
 }
 
-static void neutralR2(JOYSTICK_POSITION * iReport) {
+static void neutralr2(JOYSTICK_POSITION * iReport) {
 	long curTime = clock();
 	guiPrint(LocationState",0:r2 time:%d", (curTime - startTimeAttack));
 
@@ -504,6 +570,71 @@ static void neutralR2(JOYSTICK_POSITION * iReport) {
 		guiPrint(LocationState",0:end sub neutral r2");
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
 		AppendLastSubroutineSelf(NeutralR2Id);
+	}
+}
+
+static void castSpell(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:cast time:%d", (curTime - startTimeAttack));
+
+	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
+
+	//handle entering with lockon
+	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+		iReport->lButtons |= r3;
+	}
+
+	//hold attack button for a bit
+	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
+		guiPrint(LocationState",1:l1");
+		iReport->lButtons += l1;
+	}
+	//move toward enemy
+	if (curTime > startTimeAttack + inputDelayForKick) {
+		longTuple move;
+		angleToJoystick(angle, &move);
+		iReport->wAxisX = move.x_axis;
+		iReport->wAxisY = move.y_axis;
+		startTimeAttack = curTime;
+	}
+
+	if (curTime > startTimeAttack + 500) {
+		guiPrint(LocationState",0:end sub cast spell");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(CastSpellId);
+	}
+}
+
+static void castCancel(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:cast cancel time:%d", (curTime - startTimeAttack));
+
+	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
+
+	//handle entering with lockon
+	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+		iReport->lButtons |= r3;
+	}
+
+	//hold attack button for a bit
+	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
+		guiPrint(LocationState",1:l1");
+		iReport->lButtons += l1;
+	}
+	//move away from enemy
+	if (curTime > startTimeAttack + inputDelayForKick) {
+		guiPrint(LocationState",1:away");
+		angle = fmod((180.0 + angle), 360.0);
+		longTuple move;
+		angleToJoystick(angle, &move);
+		iReport->wAxisX = move.x_axis;
+		iReport->wAxisY = move.y_axis;
+	}
+
+	if (curTime > startTimeAttack + 500) {
+		guiPrint(LocationState",0:end sub cast spell");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(CastSpellId);
 	}
 }
 

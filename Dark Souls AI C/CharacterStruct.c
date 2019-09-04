@@ -158,7 +158,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	case 6: //Katanas
 		Player.weaponRange = 3;
 		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.24;
+		WeaponGhostHitTime = 0.23;
 		break;
 	case 7: //Thrusting Swords
 		Player.weaponRange = 3;
@@ -231,13 +231,36 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
     //read what weapon they currently have in left hand
     ReadProcessMemory(processHandle, (LPCVOID)(c->l_weapon_address), &(c->l_weapon_id), 4, 0);
     guiPrint("%d,7:L Weapon:%d", characterId, c->l_weapon_id);
-	//read if Pyromancy Flame is currently equipped and set another switch case flag
-	//if (c->r_weapon_id >= 1330000 && c->r_weapon_id <= 1332950) {
-	//	isPyromancy = 1;
-	//}
-	//else {
-	//	isPyromancy = 0;
-	//}
+	//read if a spell tool is currently equipped and set another switch case flag
+	if (Player.l_weapon_id >= 1360000 && Player.l_weapon_id <= 1367000){ //Talisman
+		isSpellTool = 1;
+	}
+	else if (Player.l_weapon_id >= 1330000 && Player.l_weapon_id <= 1332950) { //Pyro Flame
+		isSpellTool = 2;
+	}
+
+	else if (Player.l_weapon_id >= 1300000 && Player.l_weapon_id <= 1308000) { //Catalysts (currently unused)
+		isSpellTool = 3;
+	}
+	else {
+		isSpellTool = 0;
+	}
+
+	switch (isSpellTool)
+	{
+	case 1: //Pyromancy
+		Player.spellRange = 3;
+		break;
+	case 2: //Miracles
+		Player.spellRange = 4.75;
+		break;
+	case 3: //Sorcery
+		Player.spellRange = 6;
+		break;
+	default:
+		Player.spellRange = 0;
+		break;
+	}
 
     //read if hurtbox is active on enemy weapon
     if (c->hurtboxActive_address){

@@ -30,6 +30,10 @@ typedef enum DefenseId_E {
 	ToggleEscapeId,
 	PerfectBlockId,
 	ParryId,
+	BarrelLeftId,
+	BarrelRightId,
+	BarrelAwayLeftId,
+	BarrelAwayRightId,
 } DefenseId;
 //Attack Ids
 typedef enum AttackId_E {
@@ -44,7 +48,8 @@ typedef enum AttackId_E {
 	PivotBSId,
 	KickId,
 	NeutralR2Id,
-	//PyroId
+	CastSpellId,
+	CastCancelId,
 } AttackId;
 
 #define SubroutineActive 1

@@ -72,7 +72,17 @@ void InstinctDecisionMaking(InstinctDecision* instinct_decision){
 					(last_subroutine_states_self[0] != ReverseRollBSId || TotalTimeInSectoReverseRoll + 0.3 > Enemy.dodgeTimeRemaining)
 					)
 				{
-					instinct_decision->subroutine_id.defenseid = ReverseRollBSId;
+					int DodgeType = rand() % 3;
+					switch (DodgeType) {
+					case 0:
+						instinct_decision->subroutine_id.defenseid = ReverseRollBSId;
+						break;
+					case 1:
+						instinct_decision->subroutine_id.defenseid = BarrelLeftId;
+						break;
+					case 2:
+						instinct_decision->subroutine_id.defenseid = BarrelRightId;
+					}
 				}
 				else if (
 					//if we dont have enough time to roll

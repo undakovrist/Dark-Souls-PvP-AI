@@ -48,13 +48,29 @@ DWORD WINAPI DefenseMindProcess(void* data){
 
 		//if we're waking up from a bs, try to avoid chain
 		if (Player.in_backstab){
-			if (rand() > RAND_MAX / 2){
-				//randomly choose between chain escapes to through off predictions
+			int DodgeType = rand() % 4;
+			switch (DodgeType) {
+			case 0:
 				DefenseChoice = OmnistepBackwardsId;
-			}
-			else{
+				break;
+			case 1:
+				DefenseChoice = BarrelLeftId;
+				break;
+			case 2:
 				DefenseChoice = ReverseRollBSId;
+				break;
+			case 3:
+				DefenseChoice = BarrelRightId;
+				break;
 			}
+
+			//if (rand() > RAND_MAX / 2){
+				//randomly choose between chain escapes to through off predictions
+				//DefenseChoice = OmnistepBackwardsId;
+			//}
+			//else{
+				//DefenseChoice = ReverseRollBSId;
+			//}
 
 		}
 
@@ -154,8 +170,8 @@ DWORD WINAPI AttackMindProcess(void* data){
 		if (
 			!BackstabMetaOnly &&
 			//sanity checks
-			(mostRecentDistance + .5) <= Player.weaponRange && //in range
-			(mostRecentDistance + .5) >= Player.minimumRange && //outside minimum range
+			(mostRecentDistance + .25) <= Player.weaponRange && //in range
+			(mostRecentDistance + .25) >= Player.minimumRange && //outside minimum range
 			Player.stamina > 20 && //just to ensure we have enough to roll
 			Player.bleedStatus > 40 && //more than one attack to proc bleed
 			//static checks for attack
@@ -195,15 +211,16 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			//randomly choose offensive options based on weapon
 			//throw off enemy predictions
+			//CURRENTLY A MESS, I NEED TO SHORTEN THIS BY BETTER USING THE DEFAULT CASE
+			//LEGIT IT'S LINES 200-1030
 			else switch (Player.WeaponRoutines) {
 				printf("successfully entered switch routine; choosing attack");
 			case 2: //Greatswords
 			{
 				int weaponRandom = rand() % 2;
-				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
-					AttackChoice = KickId;		
+					AttackChoice = KickId;
 					printf("Attempting kick");
 					break;
 				case 1:
@@ -211,25 +228,10 @@ DWORD WINAPI AttackMindProcess(void* data){
 					printf("Attempting ghost");
 					break;
 				}
-				break;
 			}
 			case 3: //UGS
 			{
 				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					break;
-				case 1:
-					AttackChoice = DeadAngleId;
-					break;
-				}
-				break;
-			}
-			case 4: //Curved Swords
-			{
-				int weaponRandom = rand() % 2;
-				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = DeadAngleId;
@@ -240,7 +242,20 @@ DWORD WINAPI AttackMindProcess(void* data){
 					printf("Attempting ghost");
 					break;
 				}
-				break;
+			}
+			case 4: //Curved Swords
+			{
+				int weaponRandom = rand() % 2;
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = DeadAngleId;
+					printf("Attempting dead angle");
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
+					break;
+				}
 			}
 			case 5: //Curved Greatswords
 			{
@@ -248,17 +263,17 @@ DWORD WINAPI AttackMindProcess(void* data){
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
-				break;
 			}
 			case 6: //Katanas
 			{
 				int weaponRandom = rand() % 2;
-				printf("Attack choice is %d\n", weaponRandom);
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
@@ -266,14 +281,13 @@ DWORD WINAPI AttackMindProcess(void* data){
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
-					printf("Attack ghost");
+					printf("Attempting ghost");
 					break;
 				}
 			}
 			case 7: //Thrusting Swords
 			{
-				AttackChoice = GhostHitId;
-				break;
+					AttackChoice = GhostHitId;
 			}
 			case 8: //Hand Axe
 			{
@@ -281,12 +295,13 @@ DWORD WINAPI AttackMindProcess(void* data){
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
-				break;
 			}
 			case 9: //Other Axes
 			{
@@ -294,12 +309,13 @@ DWORD WINAPI AttackMindProcess(void* data){
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
-				break;
 			}
 			case 10: //BKGA
 			{
@@ -307,12 +323,13 @@ DWORD WINAPI AttackMindProcess(void* data){
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
-				break;
 			}
 			case 11: //Hammers
 			{
@@ -320,25 +337,39 @@ DWORD WINAPI AttackMindProcess(void* data){
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
-				break;
 			}
-			case 12: //Great Hammers (Kick spam for now I guess)
-				AttackChoice = KickId;
-				break;
+			case 12: //Great Hammers
+			{
+				int weaponRandom = rand() % 2;
+				switch (weaponRandom) {
+				case 0:
+					AttackChoice = KickId;
+					printf("Attempting kick");
+					break;
+				case 1:
+					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
+					break;
+				}
+			}
 			case 13: //Fist Weaps
 			{
 				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
 			}
@@ -348,9 +379,11 @@ DWORD WINAPI AttackMindProcess(void* data){
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
 			}
@@ -360,9 +393,11 @@ DWORD WINAPI AttackMindProcess(void* data){
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
 			}
@@ -372,28 +407,25 @@ DWORD WINAPI AttackMindProcess(void* data){
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
+					printf("Attempting kick");
 					break;
 				case 1:
 					AttackChoice = GhostHitId;
+					printf("Attempting ghost");
 					break;
 				}
 			}
 			default: //Dagger, SS (scythes for now)
 			{
-				int weaponRandom = rand() % 3;
-				printf("Unkown weap, attack choice is %i\n", weaponRandom);
+				int weaponRandom = rand() % 2;
 				switch (weaponRandom) {
 				case 0:
 					AttackChoice = KickId;
-					printf("Atempting kick");
+					printf("Attempting kick");
 					break;
 				case 1:
-					AttackChoice = NeutralR2Id;
-					printf("Atempting r2");
-					break;
-				case 2:
 					AttackChoice = GhostHitId;
-					printf("Atempting ghost");
+					printf("Attempting ghost");
 					break;
 				}
 			}
@@ -420,6 +452,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 				AttackChoice = DeadAngleId;
 				break;
 			case 7:
+				AttackChoice = PivotBSId;
 				break;
 			default:
 				AttackChoice = KickId;
