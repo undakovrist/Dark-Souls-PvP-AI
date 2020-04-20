@@ -6,6 +6,7 @@
 
 ullong Enemy_base_add = 0x00F7DC70;
 ullong player_base_add = 0x00F7D644;
+ullong spell_base_add = 0x00F7CE14;
 
 //NOTE: this is curently hardcoded until i find a dynamic way
 //How To Find: Increase this value until the attack ends with the AI turned away from the enemy. Decrease till it doesnt.
@@ -61,173 +62,167 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	// Daggers = 0
 	if ((Player.r_weapon_id >= 100000 && Player.r_weapon_id <= 104950) || (Player.r_weapon_id >= 9011000 && Player.r_weapon_id <= 9011950)) {
 		Player.WeaponRoutines = 0;
-	} // Straight swords = 1
+		Player.weaponRange = 2.4;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.16;
+	} // Straight swords = 1 Maybe make a separate one for Longsword as well?
 	else if (Player.r_weapon_id >= 200000 && Player.r_weapon_id <= 212950) {
 		Player.WeaponRoutines = 1;
+		Player.weaponRange = 3.5; //Mostly for BSS and SKSS. Based on 1h r1s
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.22;
 	} // Greatswords = 2
 	else if ((Player.r_weapon_id >= 300000 && Player.r_weapon_id <= 315950) || (Player.r_weapon_id >= 9012000 && Player.r_weapon_id <= 9013950) ||(Player.r_weapon_id >= 9020000 && Player.r_weapon_id <= 9020950)) {
 		Player.WeaponRoutines = 2;
+		Player.weaponRange = 3.9; //Based on 2h r1s
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.26;
 	} // Ultra-Greatswords = 3
 	else if (Player.r_weapon_id >= 350000 && Player.r_weapon_id <= 355950) {
 		Player.WeaponRoutines = 3;
-	} // Curved Sword = 4 (Excluding QFS)
+		Player.weaponRange = 3.2; //Based on 2h r1s
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.52;
+	} // Curved Sword = 4
 	else if ((Player.r_weapon_id >= 400000 && Player.r_weapon_id <= 406505) || (Player.r_weapon_id >= 9010000 && Player.r_weapon_id <= 9010950)) {
 		Player.WeaponRoutines = 4;
+		if (Player.r_weapon_id >= 406500 && Player.r_weapon_id <= 406505) { //Based on 2h r1s
+			Player.weaponRange = 3.6; //QFS
+		}
+		else {
+			Player.weaponRange = 3.1; //Mostly Falchion and GT
+		}
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.22;
 	} // Curved Greatswords = 5
 	else if (Player.r_weapon_id >= 450000 && Player.r_weapon_id <= 453950) {
 		Player.WeaponRoutines = 5;
+		Player.weaponRange = 3.5; //For Kumo, but honestly GLS isn't much shorter so that should be fine too.
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.6;
 	} // Katanas = 6
-	else if (Player.r_weapon_id >= 500000 && Player.r_weapon_id <= 503950) {
+	else if (Player.r_weapon_id >= 500000 && Player.r_weapon_id <= 503950) { //Range is important here so I'll have to split them up.
 		Player.WeaponRoutines = 6;
+		if (Player.r_weapon_id >= 501000 && Player.l_weapon_id <= 501950) { //WP
+			Player.weaponRange = 3.9;
+		}
+		else if (Player.r_weapon_id >= 503000 && Player.l_weapon_id <= 503950) { //CB
+			Player.weaponRange = 3.65;
+		}
+		else {
+			Player.weaponRange = 3.5; //Uchi & Iaito
+		}
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.23;
 	} // Thrusting Swords = 7
 	else if (Player.r_weapon_id >= 600000 && Player.r_weapon_id <= 604950) {
 		Player.WeaponRoutines = 7;
+		if (Player.r_weapon_id >= 602000 && Player.r_weapon_id <= 602950) {
+			Player.weaponRange = 3.9; //Estoc
+		}
+		else if (Player.r_weapon_id >= 603000 && Player.r_weapon_id <= 604950) {
+			Player.weaponRange = 3.7; //Velka's and Ricard's
+		}
+		else {
+			Player.weaponRange = 3.5; //Assumes Rapier since Mail Breaker is terrible
+		}
+		Player.minimumRange = 2;
+		WeaponGhostHitTime = 0.28;
 	} // Hand Axe = 8 (Too different from normal axes)
 	else if (Player.r_weapon_id >= 700000 && Player.r_weapon_id <= 700950) {
 		Player.WeaponRoutines = 8;
+		Player.weaponRange = 3.25;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.16;
 	} // Axes = 9
 	else if (Player.r_weapon_id >= 701000 && Player.r_weapon_id <= 705950) {
 		Player.WeaponRoutines = 9;
+		if (Player.r_weapon_id >= 701000 && Player.r_weapon_id <= 701950) {
+			Player.weaponRange = 3.3; //Battle Axe
+		}
+		else if (Player.r_weapon_id >= 704000 && Player.r_weapon_id <= 704950) {
+			Player.weaponRange = 3.3; //Golem Axe
+		}
+		else { 
+			Player.weaponRange = 3.75;  //Crescent axe, Gargoyle Tail Axe, Butcher's Knife
+		}
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.20;
 	} // BKGA = 10 (Other greataxes are just way too bad to bother with, and very different)
 	else if (Player.r_weapon_id >= 753000 && Player.r_weapon_id <= 753950) {
 		Player.WeaponRoutines = 10;
+		Player.weaponRange = 3.45;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.26;
 	} // Hammers = 11
 	else if (Player.r_weapon_id >= 800000 && Player.r_weapon_id <= 812950) {
 		Player.WeaponRoutines = 11;
-	} // Great Hammers = 12 (I really need to code rolling attack for this)
+		if (Player.r_weapon_id >= 811000 && Player.r_weapon_id <= 811950) { 
+			Player.weaponRange = 3.6; //Blacksmith Giant Hammer since that's all anyone ever uses
+		}
+		else {
+		Player.weaponRange = 3; //catch-all for every other hammer
+		}
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.43;
+	} // Great Hammers = 12 (This one is just bad cause I don't even know what to do with them)
 	else if (Player.r_weapon_id >= 850000 && Player.r_weapon_id <= 857950) {
 		Player.WeaponRoutines = 12;
+		Player.weaponRange = 4.25; // Large Club and bigger
+		WeaponGhostHitTime = 0.5; //random guess tbh
 	} // Fist Weapons = 13 uhhhh I guess
 	else if (Player.r_weapon_id >= 900000 && Player.r_weapon_id <= 904950) {
 		Player.WeaponRoutines = 13;
-	} // All Spears = 14
-	else if ((Player.r_weapon_id >= 1000000 && Player.r_weapon_id <= 1054950) || (Player.r_weapon_id >= 9016000 && Player.r_weapon_id <= 9016950)) {
+		Player.weaponRange = 2.85; 
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.2;
+	} // All Spears = 14  (Oh boy there's too many spears with different ranges) Based around 2h r1s
+	else if ((Player.r_weapon_id >= 1000000 && Player.r_weapon_id <= 1006950) || (Player.r_weapon_id >= 1050000 && Player.r_weapon_id <= 1054950) || (Player.r_weapon_id >= 9016000 && Player.r_weapon_id <= 9016950)) {
 		Player.WeaponRoutines = 14;
+		//Demon's Spear
+		if (Player.r_weapon_id >= 1003000 && Player.r_weapon_id <= 1003005) {
+			Player.weaponRange = 5.4;
+		} //Pike
+		else if (Player.r_weapon_id >= 1005000 && Player.r_weapon_id <= 1005905) {
+			Player.weaponRange = 4.7;
+		} //Silver Knight Spear & Dragonslayer Spear
+		else if ((Player.r_weapon_id >= 1006000 && Player.r_weapon_id <= 1006950) || (Player.r_weapon_id >= 1054000 && Player.r_weapon_id <= 1054950)) {
+			Player.weaponRange = 5.1;
+		} // Moonlight Butterfly Horn
+		else if (Player.r_weapon_id >= 1052000 && Player.r_weapon_id <= 1053905) {
+			Player.weaponRange = 4.95;
+		}
+		else { //Winged, Partizan, Channeler's Trident, and Four-Pronged Plow. Ignoring Spear cause bad
+			Player.weaponRange = 4.25;
+		}
+		Player.minimumRange = 3;
+		WeaponGhostHitTime = 0.3;
 	} // Halberd = 15 (Different from other halberds)
 	else if (Player.r_weapon_id >= 1100000 && Player.r_weapon_id <= 1100950) {
 		Player.WeaponRoutines = 15;
-	} // Other Halberds = 16
+		Player.weaponRange = 4.35;
+		Player.minimumRange = 3;
+		WeaponGhostHitTime = 0.28;
+	} // Other Halberds = 16 (They have bad neutral and I'm lazy so they're getting the one size fits all)
 	else if (Player.r_weapon_id >= 1101000 && Player.r_weapon_id <= 1107950) {
 		Player.WeaponRoutines = 16;
-	} // Scythes = 17
+		Player.weaponRange = 4.35;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.28;
+	} // Scythes = 17 (Again, bad neutral and I haven't implemented r2s, running, rolling, so screw em)
 	else if (Player.r_weapon_id >= 1150000 && Player.r_weapon_id <= 1151950) {
 		Player.WeaponRoutines = 17;
+		Player.weaponRange = 3.5;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.46;
 	} // If for some reason it's not found, just treat it as a fist weapon
 	else {
 		Player.WeaponRoutines = 13;
+		Player.weaponRange = 2.85;
+		Player.minimumRange = 0;
+		WeaponGhostHitTime = 0.22;
 	}
 
-	//Set weapon range and ghost strike timings
-	switch (Player.WeaponRoutines)
-	{ //Most of these are guesses
-	case 0: //Daggers
-		Player.weaponRange = 1;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.16;
-		break;
-	case 1: //Straight Swords
-		Player.weaponRange = 2;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.22;
-		break;
-	case 2: //Greatswords
-		Player.weaponRange = 2.5;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.26;
-		break;
-	case 3: //UGS
-		Player.weaponRange = 3.2;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.52;
-		break;
-	case 4: //Curved Swords
-		if (Player.r_weapon_id >= 406500 && Player.r_weapon_id <= 406505) { //QFS
-			Player.weaponRange = 3;
-		}
-		else {
-			Player.weaponRange = 2.5;
-		}
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.22;
-		break;
-	case 5: //Curved Greatswords
-		Player.weaponRange = 3;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.6;
-		break;
-	case 6: //Katanas
-		Player.weaponRange = 3;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.23;
-		break;
-	case 7: //Thrusting Swords
-		Player.weaponRange = 3;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.28;
-		break;
-	case 8: //Hand Axe
-		Player.weaponRange = 2.5;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.16;
-		break;
-	case 9: //Axes
-		Player.weaponRange = 2;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.20;
-		break;
-	case 10: //BKGA
-		Player.weaponRange = 3;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.26;
-		break;
-	case 11: //Hammers
-		Player.weaponRange = 3;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.43;
-		break;
-	case 13: //Fist
-		Player.weaponRange = 1;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.2;
-		break;
-	case 14: //Spears
-		  //Demon's Spear
-		if (Player.r_weapon_id >= 1003000 && Player.r_weapon_id <= 1003005) {
-			Player.weaponRange = 5;
-		} //Pike
-		else if (Player.r_weapon_id >= 1005000 && Player.r_weapon_id <= 1005905) {
-			Player.weaponRange = 4.25;
-		} //Silver Knight Spear
-		else if (Player.r_weapon_id >= 1006000 && Player.r_weapon_id <= 1006005) {
-			Player.weaponRange = 4.75;
-		}
-		else {
-			Player.weaponRange = 3.5;
-		}
-		Player.minimumRange = 1.5;
-		WeaponGhostHitTime = 0.3;
-		break;
-	case 15: //Halberd
-		Player.weaponRange = 3;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.28;
-		break;
-	case 16: //Other Halberds
-		Player.weaponRange = 3;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.28;
-		break;
-	case 17: //Scythes
-		Player.weaponRange = 3;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.46;
-		break;
-	default:
-		Player.weaponRange = 2.5;
-		Player.minimumRange = 0;
-		WeaponGhostHitTime = 0.22;
-		break;
-	}
     //read what weapon they currently have in left hand
     ReadProcessMemory(processHandle, (LPCVOID)(c->l_weapon_address), &(c->l_weapon_id), 4, 0);
     guiPrint("%d,7:L Weapon:%d", characterId, c->l_weapon_id);
@@ -249,7 +244,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	switch (isSpellTool)
 	{
 	case 1: //Pyromancy
-		Player.spellRange = 3;
+		Player.spellRange = 3.2;
 		break;
 	case 2: //Miracles
 		Player.spellRange = 4.75;
