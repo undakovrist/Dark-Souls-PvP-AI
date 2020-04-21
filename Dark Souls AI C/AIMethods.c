@@ -240,10 +240,13 @@ static void BarrelLeft(JOYSTICK_POSITION * iReport) {
 		iReport->wAxisX = XLEFT;//Move left stick all the way left
 		iReport->lButtons = r3 + circle;
 		guiPrint(LocationState",1:barrel roll left");
+	}
+
+	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction) {
 		iReport->wAxisX = XRIGHT;//Move left stick right to switch direction
 	}
 
-	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction)
+	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction + 0.25)
 	{
 		guiPrint(LocationState",0:end BarrelLeft");
 		subroutine_states[DodgeStateIndex] = SubroutineExiting;
@@ -267,10 +270,13 @@ static void BarrelRight(JOYSTICK_POSITION * iReport) {
 		iReport->wAxisX = XRIGHT;//Move left stick all the way right
 		iReport->lButtons = r3 + circle;
 		guiPrint(LocationState",1:barrel roll right");
-		iReport->wAxisX = XLEFT;//Move left stick left to switch direction
 	}
 
-	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction)
+	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction) {
+		iReport->wAxisX = XLEFT;//Move left stick right to switch direction
+	}
+
+	if (curTime > startTimeDefense + TimeForR3ToTrigger + TimeForCameraToRotateAfterLockon + TimeDeltaForGameRegisterAction + 0.25)
 	{
 		guiPrint(LocationState",0:end BarrelRight");
 		subroutine_states[DodgeStateIndex] = SubroutineExiting;
@@ -532,6 +538,8 @@ static void kick(JOYSTICK_POSITION * iReport) {
 		(Player.subanimation > AttackSubanimationWindupGhostHit)
 		) {
 		guiPrint(LocationState",0:end sub kick");
+		iReport->wAxisX = MIDDLE;
+		iReport->wAxisY = MIDDLE;
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
 		AppendLastSubroutineSelf(KickId);
 	}

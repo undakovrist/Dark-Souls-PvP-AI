@@ -226,28 +226,27 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
     //read what weapon they currently have in left hand
     ReadProcessMemory(processHandle, (LPCVOID)(c->l_weapon_address), &(c->l_weapon_id), 4, 0);
     guiPrint("%d,7:L Weapon:%d", characterId, c->l_weapon_id);
-	//read if a spell tool is currently equipped and set another switch case flag
+	//read if a spell tool or a (good) shield is currently equipped and set another switch case flag
 	if (Player.l_weapon_id >= 1360000 && Player.l_weapon_id <= 1367000){ //Talisman
 		isSpellTool = 1;
 	}
 	else if (Player.l_weapon_id >= 1330000 && Player.l_weapon_id <= 1332950) { //Pyro Flame
 		isSpellTool = 2;
 	}
-
 	else if (Player.l_weapon_id >= 1300000 && Player.l_weapon_id <= 1308000) { //Catalysts (currently unused)
 		isSpellTool = 3;
 	}
-	else {
-		isSpellTool = 0;
+	else if (Player.l_weapon_id >= 1474000 && Player.l_weapon_id <= 1474950) { //Black Knight Shield
+		Player.DefendRoutines = 1;
 	}
 
 	switch (isSpellTool)
 	{
-	case 1: //Pyromancy
-		Player.spellRange = 3.2;
-		break;
-	case 2: //Miracles
+	case 1: //Miracles
 		Player.spellRange = 4.75;
+		break;
+	case 2: //Pyromancy
+		Player.spellRange = 3.2;
 		break;
 	case 3: //Sorcery
 		Player.spellRange = 6;
@@ -289,6 +288,11 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	else {
 		EnemyWeaponClass = 1;
 	}
+
+	//check for a good pyro block shield (DCS, BKS, Greatshields
+	/*if ((Player.l_weapon_id >= 1450000 && Player.l_weapon_id <= 1452950) || (Player.l_weapon_id >= 1450000 && Player.l_weapon_id <= 1452950)) {
+	
+	}*/
 
     int animationid;
     ReadProcessMemory(processHandle, (LPCVOID)(c->animationId_address), &animationid, 4, 0);
