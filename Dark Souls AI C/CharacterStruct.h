@@ -84,8 +84,9 @@ typedef struct {
 	int WeaponRoutines;
 	//Attempt to influence weight of blocking to rolling for builds with good shields, when shield is out & not at low hp/stam
 	int DefendRoutines;
-	//If a spell tool is equipped in either hand
+	//If a spell tool is equipped. "Off" for Off hand. I have no idea if I'm going to use that or if rh will use regular attack routines so they're both here for now
 	int isSpellTool;
+	int isSpellToolOff;
 } Character;
 
 int EnemyWeaponClass;

@@ -78,8 +78,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.22;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 4.5; //BSS 1h r2 is longest and also strong so we use that
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 4.5; //BSS 1h r2 is longest and also strong so we use that
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.5;
+			}
 		}
 	} // Greatswords = 2
 	else if ((c->r_weapon_id >= 300000 && c->r_weapon_id <= 315950) || (c->r_weapon_id >= 9012000 && c->r_weapon_id <= 9013950) || (c->r_weapon_id >= 9020000 && c->r_weapon_id <= 9020950)) {
@@ -89,8 +94,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.26;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 6.1; //GS of Artorias 1h r2 range. You will almost certainly never need this, but Abyss GS is even further and you def don't need that ever
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 6.1; //GS of Artorias 1h r2 range. You will almost certainly never need this, but Abyss GS is even further and you def don't need that ever
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.5;
+			}
 		}
 	} // Ultra-Greatswords = 3
 	else if (c->r_weapon_id >= 350000 && c->r_weapon_id <= 355950) {
@@ -100,8 +110,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.52;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 5.5; 
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 5.5;
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.5;
+			}
 		}
 	} // Curved Sword = 4
 	else if ((c->r_weapon_id >= 400000 && c->r_weapon_id <= 406505) || (c->r_weapon_id >= 9010000 && c->r_weapon_id <= 9010950)) {
@@ -116,8 +131,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.22;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 3.6; //Shotel 2h r2 is strongest and strong so we use that
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 3.6; //Shotel 2h r2 is longest and strong so we use that
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.65;
+			}
 		}
 	} // Curved Greatswords = 5
 	else if (c->r_weapon_id >= 450000 && c->r_weapon_id <= 453950) {
@@ -127,8 +147,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.6;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 5.25;
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 5.25;
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.5;
+			}
 		}
 	} // Katanas = 6
 	else if (c->r_weapon_id >= 500000 && c->r_weapon_id <= 503950) { //Range is important here so I'll have to split them up.
@@ -146,8 +171,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.23;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
+		else if (characterId == EnemyId){
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
 			c->weaponRange = 5.75; //You're not using katana r2s unless it's Uchi or WP usually, so we gotta avoid that 1h r2
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.5;
+			}
 		}
 	} // Thrusting Swords = 7
 	else if (c->r_weapon_id >= 600000 && c->r_weapon_id <= 604950) {
@@ -165,8 +195,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 2;
 			WeaponGhostHitTime = 0.28;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 4.9;
+		else if (characterId == EnemyId ) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 4.9;
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.6;
+			}
 		}
 	} // Hand Axe = 8 (Too different from normal axes)
 	else if (c->r_weapon_id >= 700000 && c->r_weapon_id <= 700950) {
@@ -192,8 +227,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.20;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 3.75; //The only longer r2 is Butcher Knife 1h r2. By a lot. But they're way more likely to just run past you.
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 3.75; //The only longer r2 is Butcher Knife 1h r2. By a lot. But they're way more likely to just run past you.
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.8;
+			}
 		}
 	} // BKGA = 10 (Other greataxes are just way too bad to bother with, and very different)
 	else if (c->r_weapon_id >= 753000 && c->r_weapon_id <= 753950) {
@@ -203,6 +243,9 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.26;
 		} //BKGA 2hr2 is barely longer than 2h r1 so not bothering. 1h will likely miss every time.
+		else if (characterId == EnemyId && (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H)) {
+			c->weaponRange = 2.5;
+		}
 	} // Hammers = 11
 	else if (c->r_weapon_id >= 800000 && c->r_weapon_id <= 812950) {
 		if (c->r_weapon_id >= 811000 && c->r_weapon_id <= 811950) {
@@ -216,8 +259,13 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.43;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 3.75; //Warpick r2s. The jumping r2s of some are more likely to just miss
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 3.75; //Warpick r2s. The jumping r2s of some are more likely to just miss
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.8;
+			}
 		}
 	} // Great Hammers = 12 (This one is just bad cause I don't even know what to do with them)
 	else if (c->r_weapon_id >= 850000 && c->r_weapon_id <= 857950) {
@@ -227,8 +275,12 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.5; //random guess tbh
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 5.05;
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)
+				c->weaponRange = 5.05;
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.5;
+			}
 		}
 	} // Fist Weapons = 13 uhhhh I guess
 	else if (c->r_weapon_id >= 900000 && c->r_weapon_id <= 904950) {
@@ -238,39 +290,83 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.2;
 		}
-		else if (characterId == EnemyId && (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1)) {
-			c->weaponRange = 3.85;
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 3.85;
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 1.9;
+			}
 		}
 	} // All Spears = 14  (Oh boy there's too many spears with different ranges) Based around 2h r1s
 	else if ((c->r_weapon_id >= 1000000 && c->r_weapon_id <= 1006950) || (c->r_weapon_id >= 1050000 && c->r_weapon_id <= 1054950) || (c->r_weapon_id >= 9016000 && c->r_weapon_id <= 9016950)) {
 		//Demon's Spear
 		if (c->r_weapon_id >= 1003000 && c->r_weapon_id <= 1003005) {
 			c->weaponRange = 5.4;
+			if (characterId == EnemyId) {
+				if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+					c->weaponRange = 7.85;
+				}
+				else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+					c->weaponRange = 2.5;
+				}
+			}
 		} //Pike
 		else if (c->r_weapon_id >= 1005000 && c->r_weapon_id <= 1005905) {
 			c->weaponRange = 4.7;
+			if (characterId == EnemyId && (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H)) {
+				c->weaponRange = 2.5;
+			}
 		} //Silver Knight Spear & Dragonslayer Spear
 		else if ((c->r_weapon_id >= 1006000 && c->r_weapon_id <= 1006950) || (c->r_weapon_id >= 1054000 && c->r_weapon_id <= 1054950)) {
 			c->weaponRange = 5.1;
+			if (characterId == EnemyId) {
+				if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+					c->weaponRange = 5.9;
+				}
+				else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+					c->weaponRange = 2.5;
+				}
+			}
 		} // Moonlight Butterfly Horn
 		else if (c->r_weapon_id >= 1052000 && c->r_weapon_id <= 1053905) {
 			c->weaponRange = 4.95;
+			if (characterId == EnemyId) {
+				if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+					c->weaponRange = 5.6;
+				}
+				else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+					c->weaponRange = 2.5;
+				}
+			}
 		}
 		else { //Winged, Partizan, Channeler's Trident, and Four-Pronged Plow. Ignoring Spear cause bad
 			c->weaponRange = 4.25;
+			if (characterId == EnemyId) {
+				if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+					c->weaponRange = 4.95;
+				}
+				else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+					c->weaponRange = 2.5;
+				}
+			}
 		}
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 14;
 			c->minimumRange = 3;
 			WeaponGhostHitTime = 0.3;
 		}
-	} // Halberd = 15 (Different from other halberds)
+	}
+		 // Halberd = 15 (Different from other halberds)
 	else if (c->r_weapon_id >= 1100000 && c->r_weapon_id <= 1100950) {
 		c->weaponRange = 4.35;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 15;
 			c->minimumRange = 3;
 			WeaponGhostHitTime = 0.28;
+		}
+		else if (characterId == EnemyId && (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H)) {
+				c->weaponRange = 2.5;
 		}
 	} // Other Halberds = 16 (They have bad neutral and I'm lazy so they're getting the one size fits all)
 	else if (c->r_weapon_id >= 1101000 && c->r_weapon_id <= 1107950) {
@@ -280,6 +376,14 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.28;
 		}
+		if (characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 5.85;
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.5;
+			}
+		}
 	} // Scythes = 17 (Again, bad neutral and I haven't implemented r2s, running, rolling, so screw em)
 	else if (c->r_weapon_id >= 1150000 && c->r_weapon_id <= 1151950) {
 		c->weaponRange = 3.5;
@@ -288,8 +392,43 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.46;
 		}
-	} // If for some reason it's not found
-	else {
+		else if(characterId == EnemyId) {
+			if (c->animationType_id == R2_1H || c->animationType_id == R2_1H_Combo1 || c->animationType_id == R2_2H || c->animationType_id == R2_2H_Combo1) {
+				c->weaponRange = 5.8;
+			}
+			else if (c->animationType_id == Kick_1H || c->animationType_id == Kick_2H) {
+				c->weaponRange = 2.5;
+			}
+		}
+	} 
+	else if (c->r_weapon_id >= 1330000 && c->r_weapon_id <= 1332950) { //Pyro Flame
+		c->weaponRange = 3.5; // Default range to GC/BF so bot knows when to cast it if equipped on him
+		if (characterId == PlayerId) {
+			c->isSpellTool = 1;
+		}
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == FireBall_Cast || c->animationType_id == FireStorm_Cast || c->animationType_id == FireSurge_Cast_RH) {
+				c->weaponRange == 7;
+			}
+		}
+	}
+	else if (c->r_weapon_id >= 1360000 && c->r_weapon_id <= 1367000) { //Talisman
+		c->weaponRange = 4.85;
+		if (characterId == PlayerId) {
+			c->isSpellTool = 2;
+		}
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == Miricle_Projectile_Cast || c->animationType_id == Miricle_Throw_Cast)
+				c->weaponRange = 7;
+		}
+	}
+	else if (c->r_weapon_id >= 1300000 && c->r_weapon_id <= 1308000) { //Catalysts (currently unused)
+		c->weaponRange = 7;
+		if (characterId == PlayerId) {
+			c->isSpellTool = 3;
+		}
+	}
+	else { // If for some reason it's not found
 		c->weaponRange = 6;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 13;
@@ -302,34 +441,37 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
     ReadProcessMemory(processHandle, (LPCVOID)(c->l_weapon_address), &(c->l_weapon_id), 4, 0);
     guiPrint("%d,7:L Weapon:%d", characterId, c->l_weapon_id);
 	//read if a spell tool or a (good) shield is currently equipped and set another switch case flag
-	if (c->l_weapon_id >= 1360000 && c->l_weapon_id <= 1367000){ //Talisman
-		c->isSpellTool = 1;
+	if (c->l_weapon_id >= 1330000 && c->l_weapon_id <= 1332950) { //Pyro Flame
+		c->spellRange = 3.5; // Default range to GC/BF so bot knows when to cast it if equipped on him
+		if (characterId == PlayerId) {
+			c->isSpellToolOff = 1;
+		}
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == FireBall_Cast || c->animationType_id == FireStorm_Cast || c->animationType_id == FireSurge_Cast_RH) {
+				c->spellRange == 7;
+			}
+		}
 	}
-	else if (c->l_weapon_id >= 1330000 && c->l_weapon_id <= 1332950) { //Pyro Flame
-		c->isSpellTool = 2;
+	else if (c->l_weapon_id >= 1360000 && c->l_weapon_id <= 1367000) { //Talisman
+		c->spellRange = 4.85;
+		if (characterId == PlayerId) {
+			c->isSpellToolOff = 2;
+		}
+		else if (characterId == EnemyId) {
+			if (c->animationType_id == Miricle_Projectile_Cast || c->animationType_id == Miricle_Throw_Cast)
+				c->weaponRange = 7;
+		}
 	}
 	else if (c->l_weapon_id >= 1300000 && c->l_weapon_id <= 1308000) { //Catalysts (currently unused)
-		c->isSpellTool = 3;
+		c->weaponRange = 7;
+		if (characterId == PlayerId) {
+			c->isSpellToolOff = 3;
+		}
 	}
-	/*else if (Player.l_weapon_id >= 1474000 && Player.l_weapon_id <= 1474950) { //Black Knight Shield
+	/*else if (c->l_weapon_id >= 1474000 && c->l_weapon_id <= 1474950) { //Black Knight Shield
 		Player.DefendRoutines = 1;
 	}*/
 
-	switch (c->isSpellTool)
-	{
-	case 1: //Miracles
-		c->spellRange = 4.75;
-		break;
-	case 2: //Pyromancy
-		c->spellRange = 3.2;
-		break;
-	case 3: //Sorcery
-		c->spellRange = 6;
-		break;
-	default:
-		c->spellRange = 0;
-		break;
-	}
 
     //read if hurtbox is active on enemy weapon
     if (c->hurtboxActive_address){
