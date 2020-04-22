@@ -39,7 +39,7 @@ typedef struct {
 	//hurtbox size(range) of weapon. Bows/Magic have high range
 	float weaponRange;
 	//minimum distance from which bot will attack
-	//an attempt to prevent bot from being parried or otherwise punished while using very long weaps
+	//an attempt to mitigate bot from being parried or otherwise punished while using very long weaps
 	float minimumRange;
 	//hurtbox size of spell
 	float spellRange;
@@ -82,9 +82,12 @@ typedef struct {
     int bleedStatus;
 	//check weapon type for attacks
 	int WeaponRoutines;
+	//Attempt to influence weight of blocking to rolling for builds with good shields, when shield is out & not at low hp/stam
+	int DefendRoutines;
+	//If a spell tool is equipped in either hand
+	int isSpellTool;
 } Character;
 
-int isSpellTool;
 int EnemyWeaponClass;
 
 //initalize the phantom and player
@@ -214,4 +217,54 @@ static const int Enemy_Poise_offsets_length = 5;
 //bleed status
 static const int Player_BleedStatus_offsets[] = { 0x3C, 0x308 };
 static const int Player_BleedStatus_offsets_length = 2;
+//spell slots I AM PROBABLY DOING THIS POORLY
+static const int Player_Spell_1_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD7C };
+static const int Player_Spell_1_offsets_length = 6;
+static const int Player_Casts_1_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD80 };
+static const int Player_Casts_1_offsets_length = 6;
+static const int Player_Spell_2_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD84 };
+static const int Player_Spell_2_offsets_length = 6;
+static const int Player_Casts_2_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD88 };
+static const int Player_Casts_2_offsets_length = 6;
+static const int Player_Spell_3_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD8C };
+static const int Player_Spell_3_offsets_length = 6;
+static const int Player_Casts_3_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD90 };
+static const int Player_Casts_3_offsets_length = 6;
+static const int Player_Spell_4_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD94 };
+static const int Player_Spell_4_offsets_length = 6;
+static const int Player_Casts_4_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD98 };
+static const int Player_Casts_4_offsets_length = 6;
+static const int Player_Spell_5_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD9C };
+static const int Player_Spell_5_offsets_length = 6;
+static const int Player_Casts_5_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDA0 };
+static const int Player_Casts_5_offsets_length = 6;
+static const int Player_Spell_6_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDA4 };
+static const int Player_Spell_6_offsets_length = 6;
+static const int Player_Casts_6_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDA8 };
+static const int Player_Casts_6_offsets_length = 6;
+static const int Player_Spell_7_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDAC };
+static const int Player_Spell_7_offsets_length = 6;
+static const int Player_Casts_7_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDB0 };
+static const int Player_Casts_7_offsets_length = 6;
+static const int Player_Spell_8_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDB4 };
+static const int Player_Spell_8_offsets_length = 6;
+static const int Player_Casts_8_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDB8 };
+static const int Player_Casts_8_offsets_length = 6;
+static const int Player_Spell_9_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDBC };
+static const int Player_Spell_9_offsets_length = 6;
+static const int Player_Casts_9_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDC0 };
+static const int Player_Casts_9_offsets_length = 6;
+static const int Player_Spell_10_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDC4 };
+static const int Player_Spell_10_offsets_length = 6;
+static const int Player_Casts_10_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDC8 };
+static const int Player_Casts_10_offsets_length = 6;
+static const int Player_Spell_11_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDCC };
+static const int Player_Spell_11_offsets_length = 6;
+static const int Player_Casts_11_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDD0 };
+static const int Player_Casts_11_offsets_length = 6;
+static const int Player_Spell_12_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDD4 };
+static const int Player_Spell_12_offsets_length = 6;
+static const int Player_Casts_12_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDD8 };
+static const int Player_Casts_12_offsets_length = 6;
+
 #endif
