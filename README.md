@@ -44,12 +44,20 @@ Attack Network Inputs:
   * current bleed build up
   * NOTES:
     * usually tell how they attack by how long it's been since they last attacked
+   
+## Things that have changed since the original release
 
+  * Bot no longer attempts to toggle when staggered by fast weapons (ie katanas and curved swords)
+  * Weapon Range is somewhat dynamically determined to prevent bot from dodging while far out of range
+  * A few new attack subroutines (with more to come!)
+  * Capable of (at least theoretically) using most if not all weapon classes. Well or not is a different story.
+  
 ## TODO 
 
-  * With time, this release will hopefully be edited to use many weapons more effectively
+  * Addition of casting with cast counting and spell ID tracking (mostly only for WoG and Combustions tho)
+  * Addition of turtling if bot detects a strong shield (ie BKS, DCrest, Eagle) and high current stam
   * modify attack behaviors to be more effective and consistent (mainly kicks, which are inconsistent currently)
-  * fix him trying to toggle out of fast weaps? 
+  * Addition (and fixing of) new defense subroutines, such as forward barrel rolls not working properly 
 
 ## Using:   
 http://vjoystick.sourceforge.net (VJOY)  
