@@ -64,6 +64,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 2.4;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 0;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.16;
 		}
@@ -75,6 +76,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 3.5; //Mostly for BSS and SKSS. Based on 1h r1s
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 1;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.22;
 		}
@@ -91,6 +93,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 3.9; //Based on 2h r1s
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 2;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.26;
 		}
@@ -107,6 +110,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 3.2; //Based on 2h r1s
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 3;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.52;
 		}
@@ -128,6 +132,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		}
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 4;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.22;
 		}
@@ -142,8 +147,9 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	} // Curved Greatswords = 5
 	else if (c->r_weapon_id >= 450000 && c->r_weapon_id <= 453950) {
 		c->weaponRange = 3.5; //For Kumo, but honestly GLS isn't much shorter so that should be fine too.
-		if (characterId = PlayerId) {
+		if (characterId == PlayerId) {
 			c->WeaponRoutines = 5;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.6;
 		}
@@ -168,6 +174,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		}
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 6;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.23;
 		}
@@ -192,6 +199,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		}
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 7;
+			c->isSpellTool = 0;
 			c->minimumRange = 2;
 			WeaponGhostHitTime = 0.28;
 		}
@@ -208,6 +216,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 3.25;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 8;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.16;
 		} //Handaxe r2s are about the same length as its r1s so no issues here
@@ -224,6 +233,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		}
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 9;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.20;
 		}
@@ -240,6 +250,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 3.45;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 10;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.26;
 		} //BKGA 2hr2 is barely longer than 2h r1 so not bothering. 1h will likely miss every time.
@@ -256,6 +267,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		}
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 11;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.43;
 		}
@@ -272,6 +284,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 4.25; // Large Club and bigger
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 12;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.5; //random guess tbh
 		}
@@ -287,6 +300,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 2.85;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 13;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.2;
 		}
@@ -353,6 +367,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		}
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 14;
+			c->isSpellTool = 0;
 			c->minimumRange = 3;
 			WeaponGhostHitTime = 0.3;
 		}
@@ -373,6 +388,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 4.35;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 16;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.28;
 		}
@@ -389,6 +405,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 3.5;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 17;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.46;
 		}
@@ -408,7 +425,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		}
 		else if (characterId == EnemyId) {
 			if (c->animationType_id == FireBall_Cast || c->animationType_id == FireStorm_Cast || c->animationType_id == FireSurge_Cast_RH) {
-				c->weaponRange == 7;
+				c->weaponRange = 7;
 			}
 		}
 	}
@@ -432,6 +449,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		c->weaponRange = 6;
 		if (characterId == PlayerId) {
 			c->WeaponRoutines = 13;
+			c->isSpellTool = 0;
 			c->minimumRange = 0;
 			WeaponGhostHitTime = 0.22;
 		}
@@ -448,7 +466,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		}
 		else if (characterId == EnemyId) {
 			if (c->animationType_id == FireBall_Cast || c->animationType_id == FireStorm_Cast || c->animationType_id == FireSurge_Cast_RH) {
-				c->spellRange == 7;
+				c->spellRange = 7;
 			}
 		}
 	}
@@ -457,8 +475,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		if (characterId == PlayerId) {
 			c->isSpellToolOff = 2;
 		}
-		else if (characterId == EnemyId) {
-			if (c->animationType_id == Miricle_Projectile_Cast || c->animationType_id == Miricle_Throw_Cast)
+		else if (characterId == EnemyId && (c->animationType_id == Miricle_Projectile_Cast || c->animationType_id == Miricle_Throw_Cast)) {
 				c->weaponRange = 7;
 		}
 	}
@@ -471,6 +488,9 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	/*else if (c->l_weapon_id >= 1474000 && c->l_weapon_id <= 1474950) { //Black Knight Shield
 		Player.DefendRoutines = 1;
 	}*/
+	else {
+		c->isSpellToolOff = 0;
+	}
 
 
     //read if hurtbox is active on enemy weapon
@@ -505,11 +525,6 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 	else {
 		EnemyWeaponClass = 1;
 	}
-
-	//check for a good pyro block shield (DCS, BKS, Greatshields
-	/*if ((Player.l_weapon_id >= 1450000 && Player.l_weapon_id <= 1452950) || (Player.l_weapon_id >= 1450000 && Player.l_weapon_id <= 1452950)) {
-	
-	}*/
 
     int animationid;
     ReadProcessMemory(processHandle, (LPCVOID)(c->animationId_address), &animationid, 4, 0);

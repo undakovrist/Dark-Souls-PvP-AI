@@ -170,8 +170,8 @@ DWORD WINAPI AttackMindProcess(void* data){
 		if (
 			!BackstabMetaOnly &&
 			//sanity checks
-			(mostRecentDistance + .25) <= Player.weaponRange && //in range
-			(mostRecentDistance + .25) >= Player.minimumRange && //outside minimum range
+			(mostRecentDistance + .05) <= Player.weaponRange && //in range
+			(mostRecentDistance + .05) >= Player.minimumRange && //outside minimum range
 			Player.stamina > 20 && //just to ensure we have enough to roll
 			Player.bleedStatus > 40 && //more than one attack to proc bleed
 			//static checks for attack
@@ -211,228 +211,86 @@ DWORD WINAPI AttackMindProcess(void* data){
 			}
 			//randomly choose offensive options based on weapon
 			//throw off enemy predictions
-			//CURRENTLY A MESS, I NEED TO SHORTEN THIS BY BETTER USING THE DEFAULT CASE
-			//LEGIT IT'S LINES 200-1030
-			else switch (Player.WeaponRoutines) {
-				printf("successfully entered switch routine; choosing attack");
-			case 2: //Greatswords
-			{
-				int weaponRandom = rand() % 2;
+			//A lot of situations will end up in a Ghost Strike since all weaps can use it, but I tried to leave room for a few options each case
+			else {
+				int weaponRandom = rand() % 5;
 				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
+				case 0: //Ghost strike
+					if (Player.isSpellTool == 0) {
+						AttackChoice = GhostHitId;
+					}
+					else {
+						AttackChoice = CastCancelId;
+					}
+				break;
+				case 1: //Kick if in range unless CS or Thrusting, else DA or ghost
+					if ((mostRecentDistance <= 2.8) && ((Player.WeaponRoutines >= 8 && Player.WeaponRoutines <= 9) || Player.WeaponRoutines == 11)) {
+						AttackChoice = KickId;
+					}
+					else if (mostRecentDistance <= 1.9 && Player.WeaponRoutines == 13) {
+						AttackChoice = KickId;
+					}
+					else if (mostRecentDistance <= 2.5 && Player.WeaponRoutines != 4 && Player.WeaponRoutines != 7 && Player.isSpellTool == 0) {
+						AttackChoice = KickId;
+					}
+					else if (Player.WeaponRoutines == 4) {
+						AttackChoice = DeadAngleId;
+					}
+					else if (Player.isSpellTool >= 1) {
+						AttackChoice = CastSpellId;
+					}
+					else {
+						AttackChoice = GhostHitId;
+					}
+				break;
+				case 2: //DA if possible, else Ghost
+					if (Player.WeaponRoutines == 3 || Player.WeaponRoutines == 4 || (!Player.twoHanding && Player.WeaponRoutines == 2)) {
+						AttackChoice = DeadAngleId;
+					}
+					else if (Player.isSpellTool >= 1) {
+						AttackChoice = CastCancelId;
+					}
+					else {
+						AttackChoice = GhostHitId;
+					}
+				break;
+				case 3: //cast if possible, else kick if in range, else ghost
+					if (Player.isSpellToolOff >= 1 && (mostRecentDistance + .05 <= Player.spellRange)) {
+						AttackChoice = CastSpellOffId;
+					}
+					else if (Player.isSpellToolOff >= 1) {
+						AttackChoice = CastCancelOffId;
+					}
+					else if (Player.isSpellTool >= 1) {
+						AttackChoice = CastSpellId;
+					}
+					else if ((mostRecentDistance <= 2.8) && ((Player.WeaponRoutines >= 8 && Player.WeaponRoutines <= 9) || Player.WeaponRoutines == 11)) {
+						AttackChoice = KickId;
+					}
+					else if (mostRecentDistance <= 1.9 && Player.WeaponRoutines == 13) {
+						AttackChoice = KickId;
+					}
+					else if (mostRecentDistance <= 2.5 && Player.isSpellTool == 0) {
+						AttackChoice = KickId;
+					}
+					else {
+						AttackChoice = GhostHitId;
+					}
+				break;
+				case 4: //shieldpoke if thrusting sword or spear in range and have a shield in left hand, else ghost
+					if ((mostRecentDistance + .05) <= (Player.weaponRange - 1.2) && (Player.WeaponRoutines == 7 || Player.WeaponRoutines == 14) && !Player.twoHanding && IsWeaponShield(Player.l_weapon_id)) {
+						AttackChoice = ShieldPokeId;
+					}
+					else if (Player.isSpellTool >= 1) {
+						AttackChoice = CastSpellId;
+					}
+					else {
+						AttackChoice = GhostHitId;
+					}
 				}
-			}
-			case 3: //UGS
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = DeadAngleId;
-					printf("Attempting dead angle");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 4: //Curved Swords
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = DeadAngleId;
-					printf("Attempting dead angle");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 5: //Curved Greatswords
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 6: //Katanas
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 7: //Thrusting Swords
-			{
-					AttackChoice = GhostHitId;
-			}
-			case 8: //Hand Axe
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 9: //Other Axes
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 10: //BKGA
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 11: //Hammers
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 12: //Great Hammers
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 13: //Fist Weaps
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 14: //Spears
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 15: //Halberd
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			case 16: //Other Halberds
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			default: //Dagger, SS (scythes for now)
-			{
-				int weaponRandom = rand() % 2;
-				switch (weaponRandom) {
-				case 0:
-					AttackChoice = KickId;
-					printf("Attempting kick");
-					break;
-				case 1:
-					AttackChoice = GhostHitId;
-					printf("Attempting ghost");
-					break;
-				}
-			}
-			break;
 			}
 		}
-		else if (
+		/*else if (
 			!BackstabMetaOnly &&
 			//sanity checks
 			(mostRecentDistance <= 2) && //in range
@@ -458,7 +316,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 				AttackChoice = KickId;
 				break;
 			}
-		}
+		}*/
 
         //prevent rerun
         attack_mind_input->runNetwork = false;
@@ -474,7 +332,7 @@ DWORD WINAPI AttackMindProcess(void* data){
 int ReadyThreads(){
     //Defense Thread
     defense_mind_input = malloc(sizeof(MindInput));
-	struct fann* defense_mind = fann_create_from_file("C:/Users/unda/Documents/Neural Nets/Defense_dark_souls_ai.net");
+	struct fann* defense_mind = fann_create_from_file("E:/unda/Documents/Bot King/Neural Nets/Defense_dark_souls_ai.net");
     if (defense_mind == NULL){
         printf("Defense_dark_souls_ai.net neural network file not found");
         return EXIT_FAILURE;
@@ -489,7 +347,7 @@ int ReadyThreads(){
 
     //Attack Thread
     attack_mind_input = malloc(sizeof(MindInput));
-	struct fann* attack_mind = fann_create_from_file("C:/Users/unda/Documents/Neural Nets/Attack_dark_souls_ai.net");
+	struct fann* attack_mind = fann_create_from_file("E:/unda/Documents/Bot King/Neural Nets/Attack_dark_souls_ai.net");
     if (attack_mind == NULL){
         printf("Attack_dark_souls_ai.net neural network file not found");
         return EXIT_FAILURE;

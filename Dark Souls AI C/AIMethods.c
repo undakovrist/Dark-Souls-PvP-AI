@@ -581,7 +581,76 @@ static void neutralr2(JOYSTICK_POSITION * iReport) {
 	}
 }
 
+static void shieldPoke(JOYSTICK_POSITION* iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:r1 time:%d", (curTime - startTimeAttack));
+
+	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
+
+	guiPrint(LocationState",1:center joysticks");
+	iReport->wAxisX = MIDDLE;
+	iReport->wAxisY = MIDDLE;
+
+	//handle entering with lockon
+	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+		iReport->lButtons |= r3;
+	}
+
+	//hold attack button for a bit
+	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
+		guiPrint(LocationState",1:r2");
+		iReport->lButtons += l1;
+		iReport->lButtons += r1;
+	}
+	//move toward enemy
+	if (curTime > startTimeAttack + inputDelayForKick) {
+		longTuple move;
+		angleToJoystick(angle, &move);
+		iReport->wAxisX = move.x_axis;
+		iReport->wAxisY = move.y_axis;
+		startTimeAttack = curTime;
+	}
+
+	if (curTime > startTimeAttack + 500) {
+		guiPrint(LocationState",0:end sub neutral r2");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(ShieldPokeId);
+	}
+}
+
 static void castSpell(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:cast time:%d", (curTime - startTimeAttack));
+
+	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
+
+	//handle entering with lockon
+	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+		iReport->lButtons |= r3;
+	}
+
+	//hold attack button for a bit
+	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
+		guiPrint(LocationState",1:r1");
+		iReport->lButtons += r1;
+	}
+	//move toward enemy
+	if (curTime > startTimeAttack + inputDelayForKick) {
+		longTuple move;
+		angleToJoystick(angle, &move);
+		iReport->wAxisX = move.x_axis;
+		iReport->wAxisY = move.y_axis;
+		startTimeAttack = curTime;
+	}
+
+	if (curTime > startTimeAttack + 500) {
+		guiPrint(LocationState",0:end sub cast spell");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(CastSpellId);
+	}
+}
+
+static void castSpellOff(JOYSTICK_POSITION* iReport) {
 	long curTime = clock();
 	guiPrint(LocationState",0:cast time:%d", (curTime - startTimeAttack));
 
@@ -609,11 +678,44 @@ static void castSpell(JOYSTICK_POSITION * iReport) {
 	if (curTime > startTimeAttack + 500) {
 		guiPrint(LocationState",0:end sub cast spell");
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
-		AppendLastSubroutineSelf(CastSpellId);
+		AppendLastSubroutineSelf(CastSpellOffId);
 	}
 }
 
 static void castCancel(JOYSTICK_POSITION * iReport) {
+	long curTime = clock();
+	guiPrint(LocationState",0:cast cancel time:%d", (curTime - startTimeAttack));
+
+	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
+
+	//handle entering with lockon
+	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+		iReport->lButtons |= r3;
+	}
+
+	//hold attack button for a bit
+	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
+		guiPrint(LocationState",1:r1");
+		iReport->lButtons += r1;
+	}
+	//move away from enemy
+	if (curTime > startTimeAttack + inputDelayForKick) {
+		guiPrint(LocationState",1:away");
+		angle = fmod((180.0 + angle), 360.0);
+		longTuple move;
+		angleToJoystick(angle, &move);
+		iReport->wAxisX = move.x_axis;
+		iReport->wAxisY = move.y_axis;
+	}
+
+	if (curTime > startTimeAttack + 500) {
+		guiPrint(LocationState",0:end sub cast spell");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(CastCancelId);
+	}
+}
+
+static void castCancelOff(JOYSTICK_POSITION* iReport) {
 	long curTime = clock();
 	guiPrint(LocationState",0:cast cancel time:%d", (curTime - startTimeAttack));
 
@@ -642,7 +744,7 @@ static void castCancel(JOYSTICK_POSITION * iReport) {
 	if (curTime > startTimeAttack + 500) {
 		guiPrint(LocationState",0:end sub cast spell");
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
-		AppendLastSubroutineSelf(CastSpellId);
+		AppendLastSubroutineSelf(CastCancelOffId);
 	}
 }
 
@@ -868,6 +970,22 @@ void attack(JOYSTICK_POSITION * iReport, InstinctDecision* instinct_decision, un
 				break;
 			case NeutralR2Id:
 				neutralr2(iReport);
+				break;
+			case CastCancelId:
+				castCancel(iReport);
+				break;
+			case CastCancelOffId:
+				castCancelOff(iReport);
+				break;
+			case CastSpellId:
+				castSpell(iReport);
+				break;
+			case CastSpellOffId:
+				castSpellOff(iReport);
+				break;
+			case ShieldPokeId:
+				shieldPoke(iReport);
+				break;
             default:
                 guiPrint(LocationState",0:ERROR Unknown attack action"
 										"priority_decision=%d\n"

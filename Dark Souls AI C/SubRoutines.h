@@ -49,7 +49,10 @@ typedef enum AttackId_E {
 	KickId,
 	NeutralR2Id,
 	CastSpellId,
+	CastSpellOffId,
 	CastCancelId,
+	CastCancelOffId,
+	ShieldPokeId,
 } AttackId;
 
 #define SubroutineActive 1
