@@ -42,6 +42,25 @@ void AppendAnimationTypeEnemy(unsigned short animationType_id){
     }
 }
 
+unsigned short last_passive_states_enemy[last_passive_states_enemy_LENGTH];//update every 100 ms. LENGTH*100 = time of memory
+
+static long lastpassiveStateUpdateTime = 0;
+
+//stores enemy's last passiveStateId. Does not duplicate if its the same as the last stored one, except if it is 0.
+void AppendpassiveStateEnemy(unsigned short passiveState_id) {
+    if (clock() - lastpassiveStateUpdateTime >= 100 &&
+        (passiveState_id != last_passive_states_enemy[0] || passiveState_id == 0)
+        )
+    {
+        for (unsigned int i = last_passive_states_enemy_LENGTH - 1; i > 0; i--) {
+            last_passive_states_enemy[i] = last_passive_states_enemy[i - 1];
+        }
+        last_passive_states_enemy[0] = passiveState_id;
+
+        lastpassiveStateUpdateTime = clock();
+    }
+}
+
 float DistanceMemory[DistanceMemoryLENGTH];//update every 100 ms.
 
 static long LastDistanceUpdateTime = 0;

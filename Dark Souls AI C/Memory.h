@@ -19,6 +19,11 @@ extern unsigned short last_animation_types_enemy[last_animation_types_enemy_LENG
 
 void AppendAnimationTypeEnemy(unsigned short animationType_id);
 
+#define last_passive_states_enemy_LENGTH 100
+extern unsigned short last_passive_states_enemy[last_passive_states_enemy_LENGTH];
+
+void AppendpassiveStateEnemy(unsigned short passiveState_id);
+
 #define DistanceMemoryLENGTH 50
 extern float DistanceMemory[DistanceMemoryLENGTH];
 
