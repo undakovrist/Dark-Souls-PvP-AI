@@ -167,12 +167,15 @@ DWORD WINAPI AttackMindProcess(void* data){
 		printf("Player Bleed Status = %d\n", Player.bleedStatus);
 		printf("Enemy Subanimation = %d\n", Enemy.subanimation);
 		printf("Player weapon type = %d\n", Player.WeaponRoutines);
+		//First check if spells are applicable and if in range.
 		if (
 			!BackstabMetaOnly &&
 			//sanity checks
-			(mostRecentDistance + .05) <= Player.weaponRange && //in range
-			(mostRecentDistance + .05) >= Player.minimumRange && //outside minimum range
-			Player.stamina > 20 && //just to ensure we have enough to roll
+			((Player.isSpellTool >= 1 || Player.isSpellToolOff >= 1) && //spell tool equipped
+			(mostRecentDistance + .05) <= Player.spellRange) || //in range of current spell
+			((mostRecentDistance + .05) <= Player.weaponRange || //in range of melee weap
+			(Enemy.passiveState_id == 51 || Enemy.passiveState_id == 56) && //Enemy in kicked subanimation
+			Player.stamina > 20) && //just to ensure we have enough to roll
 			Player.bleedStatus > 40 && //more than one attack to proc bleed
 			//static checks for attack
 			((
@@ -184,43 +187,24 @@ DWORD WINAPI AttackMindProcess(void* data){
 		{
 			printf("Neural Network Result = %f\n", *out);
 
-			//if enemy is kicked, react based on weapon type
-			if ((Enemy.passiveState_id == 51) || (Enemy.passiveState_id == 56)) {
-				switch (Player.WeaponRoutines)
-				{
-				case 3:
-					AttackChoice = PivotBSId;
-					break;
-				case 5:
-					AttackChoice = PivotBSId;
-					break;
-				case 12:
-					AttackChoice = PivotBSId;
-					break;
-				case 16:
-					AttackChoice = PivotBSId;
-					break;
-				case 17:
-					AttackChoice = PivotBSId;
-					break;
-				default:
-					guiPrint(LocationState",1:r1");
-					AttackChoice = GhostHitId;
-					break;
-				}
-			}
 			//randomly choose offensive options based on weapon
 			//throw off enemy predictions
 			//A lot of situations will end up in a Ghost Strike since all weaps can use it, but I tried to leave room for a few options each case
-			else {
 				int weaponRandom = rand() % 5;
 				switch (weaponRandom) {
 				case 0: //Ghost strike
-					if (Player.isSpellTool == 0) {
-						AttackChoice = GhostHitId;
+					if (Player.isSpellTool >= 1 && (Player.spellCurrent != 4100 && Player.spellCurrent != 4110 && Player.spellCurrent != 4530) && Player.currentCasts < Player.maxCasts) {
+						AttackChoice = CastCancelId;
+					}
+					else if (Player.isSpellTool >= 1 && Player.currentCasts >= 3 && (mostRecentDistance + .05) <= Player.spellRange) {
+						Player.currentCasts = Player.currentCasts + 3;
+						AttackChoice = CastSpellId;
+					}
+					else if (Player.isSpellTool >= 1) {
+						AttackChoice = MoveUpId;
 					}
 					else {
-						AttackChoice = CastCancelId;
+						AttackChoice = GhostHitId;
 					}
 				break;
 				case 1: //Kick if in range unless CS or Thrusting, else DA or ghost
@@ -236,8 +220,12 @@ DWORD WINAPI AttackMindProcess(void* data){
 					else if (Player.WeaponRoutines == 4) {
 						AttackChoice = DeadAngleId;
 					}
-					else if (Player.isSpellTool >= 1) {
+					else if (Player.isSpellTool >= 1 && Player.currentCasts >= 3) {
+						Player.currentCasts = Player.currentCasts + 3;
 						AttackChoice = CastSpellId;
+					}
+					else if (Player.isSpellTool >= 1) {
+						AttackChoice = MoveUpId;
 					}
 					else {
 						AttackChoice = GhostHitId;
@@ -247,22 +235,33 @@ DWORD WINAPI AttackMindProcess(void* data){
 					if (Player.WeaponRoutines == 3 || Player.WeaponRoutines == 4 || (!Player.twoHanding && Player.WeaponRoutines == 2)) {
 						AttackChoice = DeadAngleId;
 					}
-					else if (Player.isSpellTool >= 1) {
+					else if (Player.isSpellTool >= 1 && Player.currentCasts >= 3) {
 						AttackChoice = CastCancelId;
+					}
+					else if (Player.isSpellTool >= 1) {
+						AttackChoice = MoveUpId;
 					}
 					else {
 						AttackChoice = GhostHitId;
 					}
 				break;
 				case 3: //cast if possible, else kick if in range, else ghost
-					if (Player.isSpellToolOff >= 1 && (mostRecentDistance + .05 <= Player.spellRange)) {
+					if (Player.isSpellToolOff >= 1 && (mostRecentDistance + .05 <= Player.spellRange) && Player.currentCasts < Player.maxCasts) {
+						Player.currentCasts = Player.currentCasts + 3;
 						AttackChoice = CastSpellOffId;
 					}
-					else if (Player.isSpellToolOff >= 1) {
+					else if (Player.isSpellToolOff >= 1 && (Player.spellCurrent != 4100 && Player.spellCurrent != 4110 && Player.spellCurrent != 4530) && Player.currentCasts < Player.maxCasts) {
 						AttackChoice = CastCancelOffId;
 					}
-					else if (Player.isSpellTool >= 1) {
+					else if (Player.isSpellTool >= 1 && (mostRecentDistance + .05 <= Player.spellRange) && Player.currentCasts < Player.maxCasts) {
+						Player.currentCasts = Player.currentCasts + 3;
 						AttackChoice = CastSpellId;
+					}
+					else if (Player.isSpellTool >= 1 && (Player.spellCurrent != 4100 && Player.spellCurrent != 4110 && Player.spellCurrent != 4530) && Player.currentCasts < Player.maxCasts) {
+						AttackChoice = CastCancelId;
+					}
+					else if (Player.isSpellTool >= 1) {
+						AttackChoice = MoveUpId;
 					}
 					else if ((mostRecentDistance <= 2.8) && ((Player.WeaponRoutines >= 8 && Player.WeaponRoutines <= 9) || Player.WeaponRoutines == 11)) {
 						AttackChoice = KickId;
@@ -281,14 +280,15 @@ DWORD WINAPI AttackMindProcess(void* data){
 					if ((mostRecentDistance + .05) <= (Player.weaponRange - 1.2) && (Player.WeaponRoutines == 7 || Player.WeaponRoutines == 14) && !Player.twoHanding && IsWeaponShield(Player.l_weapon_id)) {
 						AttackChoice = ShieldPokeId;
 					}
-					else if (Player.isSpellTool >= 1) {
+					else if (Player.isSpellTool >= 1 && Player.currentCasts < Player.maxCasts) {
+						Player.currentCasts = Player.currentCasts + 3;
 						AttackChoice = CastSpellId;
 					}
 					else {
 						AttackChoice = GhostHitId;
 					}
 				}
-			}
+			
 		}
 		/*else if (
 			!BackstabMetaOnly &&

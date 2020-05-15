@@ -87,8 +87,20 @@ typedef struct {
 	//If a spell tool is equipped. "Off" for Off hand. I have no idea if I'm going to use that or if rh will use regular attack routines so they're both here for now
 	int isSpellTool;
 	int isSpellToolOff;
+	//Attunement slots
+	ullong spellCurrent_address;
+	int spellCurrent;
+/*	ullong spellSlot_address[12];
+	int spellSlot[12];
+	ullong spellSlotCasts_address[12];
+	int spellSlotCasts[12];*/
+	int currentCasts;
+	int maxCasts;
+	int totalSpells; //for when spell pointers break
+//	bool hasTempest;
 } Character;
 
+//bool brokenPtr;
 int EnemyWeaponClass;
 
 //initalize the phantom and player
@@ -218,54 +230,37 @@ static const int Enemy_Poise_offsets_length = 5;
 //bleed status
 static const int Player_BleedStatus_offsets[] = { 0x3C, 0x308 };
 static const int Player_BleedStatus_offsets_length = 2;
-//spell slots I AM PROBABLY DOING THIS POORLY
-static const int Player_Spell_1_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD7C };
-static const int Player_Spell_1_offsets_length = 6;
-static const int Player_Casts_1_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD80 };
-static const int Player_Casts_1_offsets_length = 6;
-static const int Player_Spell_2_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD84 };
-static const int Player_Spell_2_offsets_length = 6;
-static const int Player_Casts_2_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD88 };
-static const int Player_Casts_2_offsets_length = 6;
-static const int Player_Spell_3_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD8C };
-static const int Player_Spell_3_offsets_length = 6;
-static const int Player_Casts_3_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD90 };
-static const int Player_Casts_3_offsets_length = 6;
-static const int Player_Spell_4_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD94 };
-static const int Player_Spell_4_offsets_length = 6;
-static const int Player_Casts_4_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD98 };
-static const int Player_Casts_4_offsets_length = 6;
-static const int Player_Spell_5_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xD9C };
-static const int Player_Spell_5_offsets_length = 6;
-static const int Player_Casts_5_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDA0 };
-static const int Player_Casts_5_offsets_length = 6;
-static const int Player_Spell_6_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDA4 };
-static const int Player_Spell_6_offsets_length = 6;
-static const int Player_Casts_6_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDA8 };
-static const int Player_Casts_6_offsets_length = 6;
-static const int Player_Spell_7_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDAC };
-static const int Player_Spell_7_offsets_length = 6;
-static const int Player_Casts_7_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDB0 };
-static const int Player_Casts_7_offsets_length = 6;
-static const int Player_Spell_8_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDB4 };
-static const int Player_Spell_8_offsets_length = 6;
-static const int Player_Casts_8_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDB8 };
-static const int Player_Casts_8_offsets_length = 6;
-static const int Player_Spell_9_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDBC };
-static const int Player_Spell_9_offsets_length = 6;
-static const int Player_Casts_9_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDC0 };
-static const int Player_Casts_9_offsets_length = 6;
-static const int Player_Spell_10_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDC4 };
-static const int Player_Spell_10_offsets_length = 6;
-static const int Player_Casts_10_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDC8 };
-static const int Player_Casts_10_offsets_length = 6;
-static const int Player_Spell_11_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDCC };
-static const int Player_Spell_11_offsets_length = 6;
-static const int Player_Casts_11_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDD0 };
-static const int Player_Casts_11_offsets_length = 6;
-static const int Player_Spell_12_offsets[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDD4 };
-static const int Player_Spell_12_offsets_length = 6;
-static const int Player_Casts_12_offset[] = { 0x20, 0x20, 0x20, 0x20, 0x0, 0xDD8 };
-static const int Player_Casts_12_offsets_length = 6;
-
+//Current highlighted/equipped spell
+static const int Player_Spell_Current_offsets[] = { 0x28, 0x0, 0x30, 0xC, 0x1D4 };
+static const int Player_Spell_Current_offsets_length = 5;
+//Attunement Slots
+//Attunement pointer data seems to SOMEHOW vary based on your save file (.bl2) data.
+//These Pointers MAY need to be re-found each time another build is made for the save.
+//HAHA NONE OF THIS ACTUALLY MATTERS BECAUSE POINTERS ALSO CHANGE ON INVASIONS
+/*static const int Player_Spell_offsets[12][2] = {{0x10C, 0x1D8},
+												{0x10C, 0x1E0},
+												{0x10C, 0x1E8},
+												{0x10C, 0x1F0},
+												{0x10C, 0x1F8},
+												{0x10C, 0x200},
+												{0x10C, 0x208},
+												{0x10C, 0x210},
+												{0x10C, 0x218},
+												{0x10C, 0x220},
+												{0x10C, 0x228},
+												{0x10C, 0x230}};
+static const int Player_Spell_offsets_length = 2;
+static const int Player_Casts_offsets[12][2] = {{0x10C, 0x1DC},
+												{0x10C, 0x1E4},
+												{0x10C, 0x1EC},
+												{0x10C, 0x1F4},
+												{0x10C, 0x1FC},
+												{0x10C, 0x204},
+												{0x10C, 0x20C},
+												{0x10C, 0x214},
+												{0x10C, 0x21C},
+												{0x10C, 0x224},
+												{0x10C, 0x22C},
+												{0x10C, 0x234}};
+static const int Player_Casts_offsets_length = 2;*/
 #endif

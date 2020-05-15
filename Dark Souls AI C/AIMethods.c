@@ -571,7 +571,6 @@ static void neutralr2(JOYSTICK_POSITION * iReport) {
 		angleToJoystick(angle, &move);
 		iReport->wAxisX = move.x_axis;
 		iReport->wAxisY = move.y_axis;
-		startTimeAttack = curTime;
 	}
 
 	if (curTime > startTimeAttack + 500) {
@@ -608,7 +607,6 @@ static void shieldPoke(JOYSTICK_POSITION* iReport) {
 		angleToJoystick(angle, &move);
 		iReport->wAxisX = move.x_axis;
 		iReport->wAxisY = move.y_axis;
-		startTimeAttack = curTime;
 	}
 
 	if (curTime > startTimeAttack + 500) {
@@ -623,9 +621,9 @@ static void castSpell(JOYSTICK_POSITION * iReport) {
 	guiPrint(LocationState",0:cast time:%d", (curTime - startTimeAttack));
 
 	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
-
-	//handle entering with lockon
-	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+	
+	//handle entering without lockon
+	if (!Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
 		iReport->lButtons |= r3;
 	}
 
@@ -633,17 +631,15 @@ static void castSpell(JOYSTICK_POSITION * iReport) {
 	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
 		guiPrint(LocationState",1:r1");
 		iReport->lButtons += r1;
-	}
-	//move toward enemy
-	if (curTime > startTimeAttack + inputDelayForKick) {
+		Player.currentCasts = Player.currentCasts + 3;
+		//move toward enemy
 		longTuple move;
 		angleToJoystick(angle, &move);
 		iReport->wAxisX = move.x_axis;
 		iReport->wAxisY = move.y_axis;
-		startTimeAttack = curTime;
 	}
 
-	if (curTime > startTimeAttack + 500) {
+	if (curTime > startTimeAttack + inputDelayForKick) {
 		guiPrint(LocationState",0:end sub cast spell");
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
 		AppendLastSubroutineSelf(CastSpellId);
@@ -656,8 +652,8 @@ static void castSpellOff(JOYSTICK_POSITION* iReport) {
 
 	double angle = angleFromCoordinates(Player.loc_x, Enemy.loc_x, Player.loc_y, Enemy.loc_y);
 
-	//handle entering with lockon
-	if (Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
+	//handle entering without lockon
+	if (!Player.locked_on && curTime < startTimeAttack + inputDelayForKick) {
 		iReport->lButtons |= r3;
 	}
 
@@ -665,17 +661,15 @@ static void castSpellOff(JOYSTICK_POSITION* iReport) {
 	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
 		guiPrint(LocationState",1:l1");
 		iReport->lButtons += l1;
-	}
-	//move toward enemy
-	if (curTime > startTimeAttack + inputDelayForKick) {
+		Player.currentCasts = Player.currentCasts + 3;
+		//move toward enemy
 		longTuple move;
 		angleToJoystick(angle, &move);
 		iReport->wAxisX = move.x_axis;
 		iReport->wAxisY = move.y_axis;
-		startTimeAttack = curTime;
 	}
 
-	if (curTime > startTimeAttack + 500) {
+	if (curTime > startTimeAttack + inputDelayForKick) {
 		guiPrint(LocationState",0:end sub cast spell");
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
 		AppendLastSubroutineSelf(CastSpellOffId);
@@ -708,7 +702,7 @@ static void castCancel(JOYSTICK_POSITION * iReport) {
 		iReport->wAxisY = move.y_axis;
 	}
 
-	if (curTime > startTimeAttack + 500) {
+	if (curTime > startTimeAttack + 100) {
 		guiPrint(LocationState",0:end sub cast spell");
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
 		AppendLastSubroutineSelf(CastCancelId);
@@ -741,7 +735,7 @@ static void castCancelOff(JOYSTICK_POSITION* iReport) {
 		iReport->wAxisY = move.y_axis;
 	}
 
-	if (curTime > startTimeAttack + 500) {
+	if (curTime > startTimeAttack + 100) {
 		guiPrint(LocationState",0:end sub cast spell");
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
 		AppendLastSubroutineSelf(CastCancelOffId);
@@ -821,24 +815,60 @@ static void twoHand(JOYSTICK_POSITION * iReport){
 }
 
 //lock on roll back to keep distance: prevent bs's, attacks 
-static void SwitchWeapon(JOYSTICK_POSITION * iReport){
-    guiPrint(LocationState",0:Switch Weapon");
+static void SwitchWeapon(JOYSTICK_POSITION* iReport) {
+	guiPrint(LocationState",0:Switch Weapon");
+	long curTime = clock();
+
+	if (curTime < startTimeAttack + 30) {
+		iReport->lButtons = r3;
+	}
+	else if (curTime < startTimeAttack + 40) {
+		iReport->wAxisY = YBOTTOM;
+		iReport->bHats = dright;
+	}
+
+	if (curTime > startTimeAttack + 40) {
+		guiPrint(LocationState",0:end Switch Weapon");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(SwitchWeaponId);
+	}
+}
+
+//lock on roll back to keep distance: prevent bs's, attacks 
+static void SwitchWeaponOff(JOYSTICK_POSITION * iReport){
+    guiPrint(LocationState",0:Switch Offhand Weapon");
     long curTime = clock();
 
     if (curTime < startTimeAttack + 30){
         iReport->lButtons = r3;
     }
-    else if (curTime < startTimeAttack + 300){
+    else if (curTime < startTimeAttack + 40){
         iReport->wAxisY = YBOTTOM;
         iReport->bHats = dleft;
     }
 
-    if (curTime > startTimeAttack + 500){
-        guiPrint(LocationState",0:end Switch Weapon");
+    if (curTime > startTimeAttack + 40){
+        guiPrint(LocationState",0:end Switch Offhand Weapon");
         subroutine_states[AttackStateIndex] = SubroutineExiting;
-        AppendLastSubroutineSelf(SwitchWeaponId);
+        AppendLastSubroutineSelf(SwitchWeaponOffId);
     }
 }
+
+//No use unless I figure out a way to make spell pointers work
+/*static void SwitchSpell(JOYSTICK_POSITION* iReport) {
+	guiPrint(LocationState",0:Switch Spell");
+	long curTime = clock();
+
+	if (curTime < startTimeAttack + 30) {
+		iReport->bHats = dup;
+	}
+
+	if (curTime > startTimeAttack + 30) {
+		guiPrint(LocationState",0:end Switch Spell");
+		subroutine_states[AttackStateIndex] = SubroutineExiting;
+		AppendLastSubroutineSelf(SwitchSpellId);
+	}
+}*/
 
 static void Heal(JOYSTICK_POSITION * iReport){
     guiPrint(LocationState",0:Heal");
@@ -959,6 +989,9 @@ void attack(JOYSTICK_POSITION * iReport, InstinctDecision* instinct_decision, un
             case SwitchWeaponId:
                 SwitchWeapon(iReport);
                 break;
+			case SwitchWeaponOffId:
+				SwitchWeaponOff(iReport);
+				break;
             case HealId:
                 Heal(iReport);
                 break;

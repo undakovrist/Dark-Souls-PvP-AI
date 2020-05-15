@@ -6,13 +6,20 @@
 
 ullong Enemy_base_add = 0x00F7DC70;
 ullong player_base_add = 0x00F7D644;
-ullong spell_base_add = 0x00F7CE14;
+//ullong spell_base_add = 0x00F7CE14;
 
 //NOTE: this is curently hardcoded until i find a dynamic way
 //How To Find: Increase this value until the attack ends with the AI turned away from the enemy. Decrease till it doesnt.
 float WeaponGhostHitTime;
 
 static bool waitingForAnimationTimertoCatchUp = false;
+
+// {ID, Casts (*3)}			Soul Arrow;	 Heavy SA;	Great SA;	Grt Hvy SA;		HMS;		HCSM;	Soul Spear;		CSS;		WDB;	  DarkOrb;	  DarkBead;
+int defaultMaxCasts[37][2] = { {3000, 90}, {3010, 60}, {3020, 36}, {3030, 24}, {3040, 30}, {3050, 30}, {3060, 12}, {3070, 12}, {3700, 60}, {3710, 36}, {3720, 18},
+//	DarkFog;   Pursuers;  Fireball;	  Fire Orb;	 G.Fire Ball; Firestorm; FireTempest; Fire Surge;	FireWhip;   Combustion;	 GCombust;	PsnMist;   ToxMist;	 AcidSurge;
+	{3730, 6}, {3740, 9}, {4000, 24}, {4010, 18}, {4020, 12}, {4030, 60}, {4040, 60}, {4050, 230}, {4060, 230}, {4100, 48}, {4110, 24}, {4200, 9}, {4210, 3}, {4220, 6},
+//  GCFireball;	ChaosStorm; ChFireWhip;	 BlackFlame;  Gravelord Sword Dances;	 Force;		 WoG;	  EmitForce;  LtngSpear;  GLtngSpear; SunSpear;
+	{4500, 12}, {4510, 60}, {4520, 240}, {4530, 24}, {5100, 120}, {5110, 120}, {5300, 63}, {5310, 9}, {5320, 18}, {5500, 30}, {5510, 30}, {5520, 15} };
 
 void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
     //TODO read large block that contains all data, then parse in process
@@ -53,9 +60,67 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
         ReadProcessMemory(processHandle, (LPCVOID)(c->stamina_address), &(c->stamina), 4, 0);
         guiPrint("%d,5:Stamina:%d", characterId, c->stamina);
     }
+
+	//HAHA NONE OF THIS MATTERS BECAUSE POINTERS CHANGE ACROSS SAVES AND ON INVASIONS
+	/*ReadProcessMemory(processHandle, (LPCVOID)(c->spellCurrent_address), &(c->spellCurrent), 4, 0);
+	guiPrint("%d,6:Current Spell Id:%d", characterId, c->spellCurrent);
+	c->currentCasts = 0;
+	c->totalSpells = 0;
+	if (c->spellCurrent >= 3000 && c->spellCurrent < 6000 && !brokenPtr) {
+
+		c->totalSpells = 1;
+		for (int slot = 0; slot < 12; slot = slot + 1) {
+			ReadProcessMemory(processHandle, (LPCVOID)(c->spellSlot_address[slot]), &(c->spellSlot[slot]), 4, 0);
+			ReadProcessMemory(processHandle, (LPCVOID)(c->spellSlotCasts_address[slot]), &(c->spellSlotCasts[slot]), 4, 0);
+			if ((c->spellSlot[slot] < 3000 && c->spellSlot[slot] != -1) || c->spellSlot[slot] > 6000 || c->spellSlot[1] == -1) { //Check if pointer is broken, if so use spellCurrent to guess
+				c->spellSlot[slot] = c->spellCurrent;
+				for (int spellId = 0; spellId < 37; spellId = spellId + 1) {
+					if (defaultMaxCasts[spellId][1] == c->spellCurrent) {
+						c->spellSlotCasts[slot] = defaultMaxCasts[spellId][2];
+						//I need to figure out how to make bot dPad Up here
+						c->totalSpells = c->totalSpells + 1;
+					}
+				}
+				//brokenPtr = true;
+			}
+			else if (c->spellSlot[slot] == c->spellCurrent) {
+				c->currentCasts = c->currentCasts + c->spellSlotCasts[slot];
+				for (int spellId = 0; spellId < 37; spellId = spellId + 1) {
+					if (defaultMaxCasts[spellId][1] == c->spellSlot[slot]) {
+						c->maxCasts = c->maxCasts + defaultMaxCasts[spellId][2];
+						guiPrint("%d,7:Current Casts:", characterId, c->currentCasts);
+					}
+				}
+			}
+			else if (c->spellSlot[slot] != c->spellCurrent && c->spellSlot[slot] > -1) {
+				c->totalSpells++;
+			}
+		}
+	}*/
+	
+	int spellFound = 0;
+	if (characterId == PlayerId) {
+		ReadProcessMemory(processHandle, (LPCVOID)(c->spellCurrent_address), &(c->spellCurrent), 4, 0);	
+		while (spellFound == 0 && c->spellCurrent != -1) {
+			c->currentCasts = 0;
+			if (c->spellCurrent >= 3000 && c->spellCurrent < 6000) {
+				for (int spellId = 0; spellId < 37; spellId = spellId + 1) {
+					if (defaultMaxCasts[spellId][0] == c->spellCurrent) {
+						c->maxCasts = defaultMaxCasts[spellId][1];
+						spellFound = 1;
+						spellId = 37;
+					}
+				}
+				guiPrint("%d,6:Current Spell:%d", characterId, c->spellCurrent);
+//				guiPrint("%d,7:Max Casts Usable:%d", characterId, c->maxCasts);
+				guiPrint("%d,7:Current Casts Used:%d", characterId, c->currentCasts);
+			}
+		}
+	}
+
     //read what weapon they currently have in right hand
     ReadProcessMemory(processHandle, (LPCVOID)(c->r_weapon_address), &(c->r_weapon_id), 4, 0);
-    guiPrint("%d,6:R Weapon:%d", characterId, c->r_weapon_id);
+   // guiPrint("%d,6:R Weapon:%d", characterId, c->r_weapon_id);
 
 	//read weapon type and set variable for switch case for choosing attack options
 	//most of these will assume you're using a "fast" weapon in each class. May not matter for curved/thrusting swords. May account for slow weaps later, idk
@@ -97,7 +162,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->WeaponRoutines = 1;
 			c->isSpellTool = 0;
 			c->minimumRange = 0;
-			WeaponGhostHitTime = 0.22;
+			WeaponGhostHitTime = 0.215;
 			break;
 		case EnemyId:
 			switch (c->animationType_id) {
@@ -219,7 +284,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->WeaponRoutines = 5;
 			c->isSpellTool = 0;
 			c->minimumRange = 0;
-			WeaponGhostHitTime = 0.6;
+			WeaponGhostHitTime = 0.585;
 			break;
 		case EnemyId:
 			switch (c->animationType_id) {
@@ -257,7 +322,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			c->WeaponRoutines = 6;
 			c->isSpellTool = 0;
 			c->minimumRange = 0;
-			WeaponGhostHitTime = 0.23;
+			WeaponGhostHitTime = 0.225;
 		case EnemyId:
 			switch (c->animationType_id) {
 			case R2_1H:	case R2_1H_Combo1:	
@@ -553,12 +618,6 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		else { //Winged, Partizan, Channeler's Trident, and Four-Pronged Plow. Ignoring Spear cause bad
 			c->weaponRange = 4.5;
 			switch (characterId) {
-			case PlayerId:
-				c->WeaponRoutines = 14;
-				c->isSpellTool = 0;
-				c->minimumRange = 3;
-				WeaponGhostHitTime = 0.3;
-				break;
 			case EnemyId:
 				switch (c->animationType_id) {
 				case R2_1H:	case R2_1H_Combo1:	case R2_2H:	case R2_2H_Combo1:
@@ -573,6 +632,14 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 				}
 				break;
 			}
+		}
+		switch (characterId) {
+			case PlayerId:
+				c->WeaponRoutines = 14;
+				c->isSpellTool = 0;
+				c->minimumRange = 3;
+				WeaponGhostHitTime = 0.29;
+				break;
 		}
 	}
 		 // Halberd = 15 (Different from other halberds)
@@ -699,7 +766,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 
     //read what weapon they currently have in left hand
     ReadProcessMemory(processHandle, (LPCVOID)(c->l_weapon_address), &(c->l_weapon_id), 4, 0);
-    guiPrint("%d,7:L Weapon:%d", characterId, c->l_weapon_id);
+    //guiPrint("%d,7:L Weapon:%d", characterId, c->l_weapon_id);
 	//read if a spell tool or a (good) shield is currently equipped and set another switch case flag
 	if (c->l_weapon_id >= 1330000 && c->l_weapon_id <= 1332950) { //Pyro Flame
 		c->spellRange = 3.5; // Default range to GC/BF so bot knows when to cast it if equipped on him
@@ -831,7 +898,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
             curAnimationTimer_address = c->animationTimer_address;
         }
         else{
-            guiPrint(LocationDetection",3:ALERT: Animation type found but not animation ids");
+            guiPrint(LocationDetection",3:ALERT: Animation type found but not animation ids",1);
         }
 
         if (curAnimationid){
@@ -1002,4 +1069,10 @@ void ReadPointerEndAddresses(HANDLE processHandle){
     Player.staminaRecoveryRate_address = 0;
     Player.poise_address = FindPointerAddr(processHandle, player_base_add, Player_Poise_offsets_length, Player_Poise_offsets);
     Player.bleedStatus_address = FindPointerAddr(processHandle, player_base_add, Player_BleedStatus_offsets_length, Player_BleedStatus_offsets);
+	Player.spellCurrent_address = FindPointerAddr(processHandle, player_base_add, Player_Spell_Current_offsets_length, Player_Spell_Current_offsets);
+	/*for (int a = 0; a < 12; a = a + 1) {
+		Player.spellSlot_address[a] = FindPointerAddr(processHandle, spell_base_add, Player_Spell_offsets_length, Player_Spell_offsets[a]);
+		Player.spellSlotCasts_address[a] = FindPointerAddr(processHandle, spell_base_add, Player_Casts_offsets_length, Player_Casts_offsets[a]);
+	}*/
+
 }

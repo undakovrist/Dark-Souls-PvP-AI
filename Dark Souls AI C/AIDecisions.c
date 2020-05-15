@@ -12,21 +12,29 @@ void InstinctDecisionMaking(InstinctDecision* instinct_decision){
 	//TODO should formalize this in an actual order somehow
 
 	//if not two handing
-	if (!Player.twoHanding && distanceByLine > Enemy.weaponRange*1.25){
+	if ((!Player.twoHanding && distanceByLine > Enemy.weaponRange*1.25) && ((Player.isSpellToolOff == 0 || Player.currentCasts == Player.maxCasts) && Player.DefendRoutines == 0)){
 		instinct_decision->priority_decision = EnterAttackSubroutine;
 		instinct_decision->subroutine_id.attackid = TwoHandId;
 	}
 	//l hand bare handed, not holding shield. safety distance
 	/*if (Player.l_weapon_id == 900000 && distanceByLine > Enemy.weaponRange*1.75){
 		instinct_decision->priority_decision = EnterAttackSubroutine;
-		instinct_decision->subroutine_id.attackid = SwitchWeaponId;
+		instinct_decision->subroutine_id.attackid = SwitchWeaponOffId;
 	}*/
 	//heal if enemy heals
 	if ((Enemy.animationType_id == CrushUseItem || Enemy.animationType_id == EstusSwig_part1 || Enemy.animationType_id == EstusSwig_part2) && Player.hp < 2000){
 		instinct_decision->priority_decision = EnterAttackSubroutine;
 		instinct_decision->subroutine_id.attackid = HealId;
 	}
-
+	//If spell tool equipped but no casts, toggle away
+	if (Player.isSpellTool >= 1 && Player.currentCasts >= Player.maxCasts) {
+			instinct_decision->priority_decision = EnterAttackSubroutine;
+			instinct_decision->subroutine_id.attackid = SwitchWeaponId; //toggle right hand
+	}
+	if (Player.isSpellToolOff >= 1 && Player.currentCasts >= 3) {
+		instinct_decision->priority_decision = EnterAttackSubroutine;
+		instinct_decision->subroutine_id.attackid = SwitchWeaponOffId; //toggle left hand
+	}
 	//if enemy in range and we/enemy is not in invulnerable position (bs knockdown)
 	if (distanceByLine <= Enemy.weaponRange && !Player.in_backstab && !Enemy.in_backstab){
 		if (
