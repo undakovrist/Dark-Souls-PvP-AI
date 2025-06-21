@@ -54,7 +54,7 @@ void ReadWeaponTiming(){
 
 int mainTESTING(void)
 {
-    fpdef = fopen("E:/Code Workspace/Dark Souls AI C/out.txt", "w");
+    fpdef = fopen("C:/Code Workspace/Dark Souls AI C/out.txt", "w");
 
     SetupandLoad();
 

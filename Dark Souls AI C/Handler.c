@@ -89,7 +89,7 @@ void PutDownRedSign(){
 static bool RereadPointerEndAddress = true;
 static long LastRedSignTime = 0;
 
-int main(void){
+ int main(void){
     #if FeedNeuralNet
 	trainFromFile(70, NeuralNetFolderLocation"/attack_training_data.train",				 NeuralNetFolderLocation"/attack_training_data.test",   NeuralNetFolderLocation"/Attack_dark_souls_ai.net");
 	trainFromFile(30, NeuralNetFolderLocation"Neural Nets/backstab_training_data.train", NeuralNetFolderLocation"/backstab_training_data.test", NeuralNetFolderLocation"/Defense_dark_souls_ai.net");

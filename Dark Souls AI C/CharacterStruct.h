@@ -90,18 +90,27 @@ typedef struct {
 	//Attunement slots
 	ullong spellCurrent_address;
 	int spellCurrent;
-/*	ullong spellSlot_address[12];
-	int spellSlot[12];
-	ullong spellSlotCasts_address[12];
-	int spellSlotCasts[12];*/
-	int currentCasts;
-	int maxCasts;
-	int totalSpells; //for when spell pointers break
-//	bool hasTempest;
+
 } Character;
 
-//bool brokenPtr;
-int EnemyWeaponClass;
+//Spell stuff from World base
+ullong attunement_address;
+ullong spellSlot_address[12];
+int spellSlot[12];
+ullong spellSlotCasts_address[12];
+int spellSlotCasts[12];
+bool hasTempest;
+//misc spell stuff
+int attunement_att;
+int attunement_slots;
+ullong currentCasts_address;
+ullong currentCasts_address1;
+ullong currentCasts_address2;
+int currentCasts;
+int maxCasts;
+
+//Checked during stagger animations to determine if we can toggle escape
+short animEscapable;
 
 //initalize the phantom and player
 Character Enemy;
@@ -111,6 +120,8 @@ Character Player;
 
 //read memory for the character's variables
 void ReadPlayer(Character * c, HANDLE processHandle, int characterId);
+
+void ReadWorld(HANDLE processHandle);
 
 void ReadPlayerDEBUGGING(Character * c, HANDLE processHandle, ...);
 
@@ -123,33 +134,53 @@ void ReadPointerEndAddresses(HANDLE processHandle);
 //this MUST be 64 bits to account for max possible address space
 extern ullong Enemy_base_add;
 extern ullong player_base_add;
+extern ullong world_base_add;
+extern ullong casts_base_add;
 //offsets and length for x location
-static const int Enemy_loc_x_offsets[] = { 0x4, 0x4, 0x2C, 0x260 };
+/*static const int Enemy_loc_x_offsets[3][4] = {{0x4, 0x4, 0x2C, 0x260}, //Phantom Slot 1
+											 {0x4, 0x8, 0x2C, 0x260},  //Phantom Slot 2
+											 {0x4, 0xC, 0x2C, 0x260}}; //Phantom Slot 3*/
+static const int Enemy_loc_x_offsets[] = {0x4, 0x4, 0x2C, 0x260}; 
 static const int Player_loc_x_offsets[] = { 0x3C, 0x330, 0x4, 0x20C, 0x3C0 };
 static const int Enemy_loc_x_offsets_length = 4;
 static const int Player_loc_x_offsets_length = 5;
 //offsets and length for y location
-static const int Enemy_loc_y_offsets[] = { 0x4, 0x4, 0x28, 0x54, 0x268 };
+/*static const int Enemy_loc_y_offsets[3][5] = {{0x4, 0x4, 0x28, 0x54, 0x268}, //Phantom Slot 1
+											 {0x4, 0x8, 0x28, 0x54, 0x268},  //Phantom Slot 2
+											 {0x4, 0xC, 0x28, 0x54, 0x268}}; //Phantom Slot 3*/
+static const int Enemy_loc_y_offsets[] = {0x4, 0x4, 0x28, 0x54, 0x268};
 static const int Player_loc_y_offsets[] = { 0x3C, 0x330, 0x4, 0x20C, 0x3C8 };
 static const int Enemy_loc_y_offsets_length = 5;
 static const int Player_loc_y_offsets_length = 5;
 //offsets and length for rotation.
+/*static const int Enemy_rotation_offsets[3][5] = {{0x4, 0x4, 0x28, 0x54, 0x34}, //Phantom Slot 1
+												{0x4, 0x8, 0x28, 0x54, 0x34},  //Phantom Slot 2
+												{0x4, 0xC, 0x28, 0x54, 0x34}}; //Phantom Slot 3*/
 static const int Enemy_rotation_offsets[] = { 0x4, 0x4, 0x28, 0x54, 0x34 };
 static const int Player_rotation_offsets[] = { 0x3C, 0x28, 0x1C, 0x4 };
 static const int Enemy_rotation_offsets_length = 5;
 static const int Player_rotation_offsets_length = 4;
 //offsets and length for animation type id
-static const int Enemy_animationType_offsets[] = { 0x4, 0x4, 0x28, 0x54, 0x1EC };
+/*static const int Enemy_animationType_offsets[3][5] = {{0x4, 0x4, 0x28, 0x54, 0x1EC}, //Phantom Slot 1
+													 {0x4, 0x8, 0x28, 0x54, 0x1EC},  //Phantom Slot 2
+													 {0x4, 0xC, 0x28, 0x54, 0x1EC}}; //Phantom Slot 3*/
+static const int Enemy_animationType_offsets[] = {0x4, 0x4, 0x28, 0x54, 0x1EC};
 static const int Player_animationType_offsets[] = { 0x288, 0xC, 0xC, 0x10, 0x41C };
 static const int Enemy_animationType_offsets_length = 5;
 static const int Player_animationType_offsets_length = 5;
 //offsets and length for PassiveState id
-static const int Enemy_passiveState_offsets[] = { 0x3C, 0x0C, 0x20, 0x28, 0x54, 0x1F0 };
+/*static const int Enemy_passiveState_offsets[3][6] = {{0x4, 0x0, 0xC, 0x20, 0x2C, 0x1F0}, //Phantom Slot 1
+													{0x4, 0x4, 0xC, 0x20, 0x2C, 0x1F0},  //Phantom Slot 2
+													{0x4, 0x8, 0xC, 0x20, 0x2C, 0x1F0}}; //Phantom Slot 3*/
+static const int Enemy_passiveState_offsets[] = {0x4, 0x0, 0xC, 0x20, 0x2C, 0x1F0};
 static const int Player_passiveState_offsets[] = { 0x288, 0xC, 0xC, 0x10, 0x420 };
 static const int Enemy_passiveState_offsets_length = 6;
 static const int Player_passiveState_offsets_length = 5;
 //hp
-static const int Enemy_hp_offsets[] = { 0x4, 0x4, 0x2D4 };
+/*static const int Enemy_hp_offsets[3][3] = {{0x4, 0x4, 0x2D4}, //Phantom Slot 1
+										  {0x4, 0x8, 0x2D4},  //Phantom Slot 2
+										  {0x4, 0xC, 0x2D4}}; //Phantom Slot 3*/
+static const int Enemy_hp_offsets[] = {0x4, 0x4, 0x2D4};
 static const int Player_hp_offsets[] = { 0x288, 0xC, 0x330, 0x4, 0x2D4 };
 static const int Enemy_hp_offsets_length = 3;
 static const int Player_hp_offsets_length = 5;
@@ -157,12 +188,18 @@ static const int Player_hp_offsets_length = 5;
 static const int Player_stamina_offsets[] = { 0x288, 0xC, 0x330, 0x4, 0x2E4 };
 static const int Player_stamina_offsets_length = 5;
 //R weapon id
-static const int Enemy_r_weapon_offsets[] = { 0x4, 0x4, 0x34C, 0x654, 0x1F8 };
+/*static const int Enemy_r_weapon_offsets[3][5] = {{0x4, 0x4, 0x34C, 0x654, 0x1F8}, //Phantom Slot 1
+												{0x4, 0x8, 0x34C, 0x654, 0x1F8},  //Phantom Slot 2
+												{0x4, 0xC, 0x34C, 0x654, 0x1F8}}; //Phantom Slot 3*/
+static const int Enemy_r_weapon_offsets[] = {0x4, 0x4, 0x34C, 0x654, 0x1F8};
 static const int Player_r_weapon_offsets[] = { 0x3C, 0x30, 0xC, 0x654, 0x1F8 };
 static const int Enemy_r_weapon_offsets_length = 5;
 static const int Player_r_weapon_offsets_length = 5;
 //L weapon id
-static const int Enemy_l_weapon_offsets[] = { 0x4, 0x4, 0x34C, 0x654, 0x1B8 };
+/*static const int Enemy_l_weapon_offsets[3][5] = {{0x4, 0x4, 0x34C, 0x654, 0x1B8}, //Phantom Slot 1
+												{0x4, 0x8, 0x34C, 0x654, 0x1B8},  //Phantom Slot 2
+												{0x4, 0xC, 0x34C, 0x654, 0x1B8}}; //Phantom Slot 3*/
+static const int Enemy_l_weapon_offsets[] = {0x4, 0x4, 0x34C, 0x654, 0x1B8};
 static const int Player_l_weapon_offsets[] = { 0x3C, 0x30, 0xC, 0x654, 0x1B4 };
 static const int Enemy_l_weapon_offsets_length = 5;
 static const int Player_l_weapon_offsets_length = 5;
@@ -180,28 +217,43 @@ static const int Player_l_weapon_offsets_length = 5;
 static const int Enemy_hurtboxActive_offsets[] = { 0x4, 0x0, 0xC, 0x3C, 0xF };
 static const int Enemy_hurtboxActive_offsets_length = 5;
 //time animation has been active
-static const int Enemy_animationTimer_offsets[] = { 0x4, 0x4, 0x28, 0x18, 0x4DC };
+/*static const int Enemy_animationTimer_offsets[3][5] = {{0x4, 0x4, 0x28, 0x18, 0x4DC}, //Phantom Slot 1
+													  {0x4, 0x8, 0x28, 0x18, 0x4DC},  //Phantom Slot 2
+													  {0x4, 0xC, 0x28, 0x18, 0x4DC}}; //Phantom Slot 3*/
+static const int Enemy_animationTimer_offsets[] = {0x4, 0x4, 0x28, 0x18, 0x4DC};
 static const int Enemy_animationTimer_offsets_length = 5;
 static const int Player_animationTimer_offsets[] = { 0x28, 0x0, 0x148, 0x4C8, 0x4DC };
 static const int Player_animationTimer_offsets_length = 5;
 //second timer for animation. Note sometimes due to lag this will cut itself off early to that timer 1 can start at correct time
+/*static const int Enemy_animationTimer2_offsets[3][5] = {{0x4, 0x4, 0x28, 0x18, 0x440}, //Phantom Slot 1
+													   {0x4, 0x8, 0x28, 0x18, 0x440},  //Phantom Slot 2
+													   {0x4, 0xC, 0x28, 0x18, 0x440}}; //Phantom Slot 3*/
 static const int Enemy_animationTimer2_offsets[] = { 0x4, 0x4, 0x28, 0x18, 0x440 };
 static const int Enemy_animationTimer2_offsets_length = 5;
 static const int Player_animationTimer2_offsets[] = { 0x28, 0x0, 0x148, 0x4C8, 0x440 };
 static const int Player_animationTimer2_offsets_length = 5;
 //current animation id
-static const int Enemy_animationID_offsets[] = { 0x4, 0x4, 0x28, 0x18, 0x444 };
+/*static const int Enemy_animationID_offsets[3][5] = {{0x4, 0x4, 0x28, 0x18, 0x444}, //Phantom Slot 1
+												   {0x4, 0x8, 0x28, 0x18, 0x444},  //Phantom Slot 2
+												   {0x4, 0xC, 0x28, 0x18, 0x444}}; //Phantom Slot 3*/
+static const int Enemy_animationID_offsets[] = {0x4, 0x4, 0x28, 0x18, 0x444};
 static const int Enemy_animationID_offsets_length = 5;
 static const int Player_animationID_offsets[] = { 0x288, 0xC, 0x618, 0x28, 0x7B0 };
 static const int Player_animationID_offsets_length = 5;
 //second animation id
-static const int Enemy_animationID2_offsets[] = { 0x4, 0x4, 0x28, 0x18, 0x3A8 };
+/*static const int Enemy_animationID2_offsets[3][5] = {{0x4, 0x4, 0x28, 0x18, 0x3A8}, //Phantom Slot 1
+													{0x4, 0x8, 0x28, 0x18, 0x3A8},  //Phantom Slot 2
+													{0x4, 0xC, 0x28, 0x18, 0x3A8}}; //Phantom Slot 3*/
+static const int Enemy_animationID2_offsets[] = {0x4, 0x4, 0x28, 0x18, 0x3A8};
 static const int Enemy_animationID2_offsets_length = 5;
 static const int Player_animationID2_offsets[] = { 0x3C, 0x28, 0x18, 0x8C, 0x1D4 };
 static const int Player_animationID2_offsets_length = 5;
 //teriary animation id
-static const int Enemy_animationID3_offsets[] = { 0x4, 0x4, 0x65C, 0x268, 0x770 };
-static const int Enemy_animationID3_offsets_length = 5;
+/*static const int Enemy_animationID3_offsets[3][5] = {{0x4, 0x4, 0x65C, 0x268, 0x770}, //Phantom Slot 1
+													{0x4, 0x8, 0x65C, 0x268, 0x770},  //Phantom Slot 2
+													{0x4, 0xC, 0x65C, 0x268, 0x770}}; //Phantom Slot 3*/
+static const int Enemy_animationID3_offsets[] = {0x4, 0x4, 0x65C, 0x268, 0x770};
+static const int Enemy_animationID3_offsets_length = 5; 
 static const int Player_animationID3_offsets[] = { 0x3C, 0x10C };
 static const int Player_animationID3_offsets_length = 2;
 //if in a ready/animation switchable state
@@ -211,7 +263,10 @@ static const int Player_readyState_offsets_length = 5;
 //-0.04 slow walk
 //-0.13 walk
 //-0.16 - 18 sprint
-static const int Enemy_velocity_offsets[] = { 0x4, 0x4, 0x658, 0x5C, 0x3BC };
+/*static const int Enemy_velocity_offsets[3][5] = {{0x4, 0x4, 0x658, 0x5C, 0x3BC}, //Phantom Slot 1
+												{0x4, 0x8, 0x658, 0x5C, 0x3BC},  //Phantom Slot 2
+												{0x4, 0xC, 0x658, 0x5C, 0x3BC}}; //Phantom Slot 3*/
+static const int Enemy_velocity_offsets[] = {0x4, 0x4, 0x658, 0x5C, 0x3BC};
 static const int Enemy_velocity_offsets_length = 5;
 //if player is locked on. used for verification only
 static const int Player_Lock_on_offsets[] = { 0x3C, 0x170, 0x2C, 0x390, 0x128 };
@@ -220,12 +275,18 @@ static const int Player_Lock_on_offsets_length = 5;
 static const int Player_twohanding_offsets[] = { 0x28, 0x0, 0x148, 0x4C8, 0x0 };
 static const int Player_twohanding_offsets_length = 5;
 //stamina recovery rate of enemy
-static const int Enemy_stamRecovery_offsets[] = { 0x4, 0x4, 0x170, 0x34C, 0x408 };
+/*static const int Enemy_stamRecovery_offsets[3][5] = {{0x4, 0x4, 0x170, 0x34C, 0x408}, //Phantom Slot 1
+													{0x4, 0x8, 0x170, 0x34C, 0x408},  //Phantom Slot 2
+													{0x4, 0xC, 0x170, 0x34C, 0x408}}; //Phantom Slot 3*/
+static const int Enemy_stamRecovery_offsets[] = {0x4, 0x4, 0x170, 0x34C, 0x408};
 static const int Enemy_stamRecovery_offsets_length = 5;
 //current poise
 static const int Player_Poise_offsets[] = { 0x28, 0x18, 0xE0, 0xC, 0x1C0 };
 static const int Player_Poise_offsets_length = 5;
-static const int Enemy_Poise_offsets[] = { 0x4, 0x4, 0x60, 0x8, 0x1C0 };
+/*static const int Enemy_Poise_offsets[3][5] = {{0x4, 0x4, 0x60, 0x8, 0x1C0}, //Phantom Slot 1
+											 {0x4, 0x8, 0x60, 0x8, 0x1C0},  //Phantom Slot 2
+											 {0x4, 0xC, 0x60, 0x8, 0x1C0}}; //Phantom Slot 3*/
+static const int Enemy_Poise_offsets[] = {0x4, 0x4, 0x60, 0x8, 0x1C0};
 static const int Enemy_Poise_offsets_length = 5;
 //bleed status
 static const int Player_BleedStatus_offsets[] = { 0x3C, 0x308 };
@@ -234,33 +295,32 @@ static const int Player_BleedStatus_offsets_length = 2;
 static const int Player_Spell_Current_offsets[] = { 0x28, 0x0, 0x30, 0xC, 0x1D4 };
 static const int Player_Spell_Current_offsets_length = 5;
 //Attunement Slots
-//Attunement pointer data seems to SOMEHOW vary based on your save file (.bl2) data.
-//These Pointers MAY need to be re-found each time another build is made for the save.
-//HAHA NONE OF THIS ACTUALLY MATTERS BECAUSE POINTERS ALSO CHANGE ON INVASIONS
-/*static const int Player_Spell_offsets[12][2] = {{0x10C, 0x1D8},
-												{0x10C, 0x1E0},
-												{0x10C, 0x1E8},
-												{0x10C, 0x1F0},
-												{0x10C, 0x1F8},
-												{0x10C, 0x200},
-												{0x10C, 0x208},
-												{0x10C, 0x210},
-												{0x10C, 0x218},
-												{0x10C, 0x220},
-												{0x10C, 0x228},
-												{0x10C, 0x230}};
-static const int Player_Spell_offsets_length = 2;
-static const int Player_Casts_offsets[12][2] = {{0x10C, 0x1DC},
-												{0x10C, 0x1E4},
-												{0x10C, 0x1EC},
-												{0x10C, 0x1F4},
-												{0x10C, 0x1FC},
-												{0x10C, 0x204},
-												{0x10C, 0x20C},
-												{0x10C, 0x214},
-												{0x10C, 0x21C},
-												{0x10C, 0x224},
-												{0x10C, 0x22C},
-												{0x10C, 0x234}};
-static const int Player_Casts_offsets_length = 2;*/
+static const int Attunement_offsets[] = {0x8, 0x40};
+static const int Attunement_offsets_length = 2;
+static const int Spell_offsets[12][3] = {{0x8, 0x30C, 0xC},
+										{0x8, 0x30C, 0x14},
+										{0x8, 0x30C, 0x1C},
+										{0x8, 0x30C, 0x24},
+										{0x8, 0x30C, 0x2C},
+										{0x8, 0x30C, 0x34},
+										{0x8, 0x30C, 0x3C},
+										{0x8, 0x30C, 0x44},
+										{0x8, 0x30C, 0x4C},
+										{0x8, 0x30C, 0x54},
+										{0x8, 0x30C, 0x5C},
+										{0x8, 0x30C, 0x64}};
+static const int Spell_offsets_length = 3;
+static const int Casts_offsets[12][3] = {{0x8, 0x30C, 0x10},
+										{0x8, 0x30C, 0x18},
+										{0x8, 0x30C, 0x20},
+										{0x8, 0x30C, 0x28},
+										{0x8, 0x30C, 0x30},
+										{0x8, 0x30C, 0x38},
+										{0x8, 0x30C, 0x40},
+										{0x8, 0x30C, 0x48},
+										{0x8, 0x30C, 0x50},
+										{0x8, 0x30C, 0x58},
+										{0x8, 0x30C, 0x60},
+										{0x8, 0x30C, 0x68}};
+static const int Casts_offsets_length = 3;
 #endif

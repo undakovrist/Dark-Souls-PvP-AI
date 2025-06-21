@@ -289,7 +289,7 @@ static void ToggleEscape(JOYSTICK_POSITION * iReport){
     long curTime = clock();
     guiPrint(LocationState",0:Toggle Escape:%d", (curTime - startTimeDefense));
 
-    if (curTime < startTimeDefense + 30){
+    if (curTime < startTimeDefense + 30 ) {
         iReport->bHats = dleft;
     }
 
@@ -631,7 +631,6 @@ static void castSpell(JOYSTICK_POSITION * iReport) {
 	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
 		guiPrint(LocationState",1:r1");
 		iReport->lButtons += r1;
-		Player.currentCasts = Player.currentCasts + 3;
 		//move toward enemy
 		longTuple move;
 		angleToJoystick(angle, &move);
@@ -661,7 +660,6 @@ static void castSpellOff(JOYSTICK_POSITION* iReport) {
 	if ((curTime < startTimeAttack + inputDelayForKick) && (curTime > startTimeAttack + inputDelayForStart)) {
 		guiPrint(LocationState",1:l1");
 		iReport->lButtons += l1;
-		Player.currentCasts = Player.currentCasts + 3;
 		//move toward enemy
 		longTuple move;
 		angleToJoystick(angle, &move);
@@ -855,7 +853,7 @@ static void SwitchWeaponOff(JOYSTICK_POSITION * iReport){
 }
 
 //No use unless I figure out a way to make spell pointers work
-/*static void SwitchSpell(JOYSTICK_POSITION* iReport) {
+static void SwitchSpell(JOYSTICK_POSITION* iReport) {
 	guiPrint(LocationState",0:Switch Spell");
 	long curTime = clock();
 
@@ -868,7 +866,7 @@ static void SwitchWeaponOff(JOYSTICK_POSITION * iReport){
 		subroutine_states[AttackStateIndex] = SubroutineExiting;
 		AppendLastSubroutineSelf(SwitchSpellId);
 	}
-}*/
+}
 
 static void Heal(JOYSTICK_POSITION * iReport){
     guiPrint(LocationState",0:Heal");

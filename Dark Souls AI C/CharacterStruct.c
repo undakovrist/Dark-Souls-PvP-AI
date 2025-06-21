@@ -6,8 +6,10 @@
 
 ullong Enemy_base_add = 0x00F7DC70;
 ullong player_base_add = 0x00F7D644;
-//ullong spell_base_add = 0x00F7CE14;
-
+ullong world_base = 0x01378700;
+ullong world_base_add;
+//ullong casts_base_add = 0x00F7F94C;
+//ullong casts_base_add = 0x00F7F920;
 //NOTE: this is curently hardcoded until i find a dynamic way
 //How To Find: Increase this value until the attack ends with the AI turned away from the enemy. Decrease till it doesnt.
 float WeaponGhostHitTime;
@@ -20,6 +22,59 @@ int defaultMaxCasts[37][2] = { {3000, 90}, {3010, 60}, {3020, 36}, {3030, 24}, {
 	{3730, 6}, {3740, 9}, {4000, 24}, {4010, 18}, {4020, 12}, {4030, 60}, {4040, 60}, {4050, 230}, {4060, 230}, {4100, 48}, {4110, 24}, {4200, 9}, {4210, 3}, {4220, 6},
 //  GCFireball;	ChaosStorm; ChFireWhip;	 BlackFlame;  Gravelord Sword Dances;	 Force;		 WoG;	  EmitForce;  LtngSpear;  GLtngSpear; SunSpear;
 	{4500, 12}, {4510, 60}, {4520, 240}, {4530, 24}, {5100, 120}, {5110, 120}, {5300, 63}, {5310, 9}, {5320, 18}, {5500, 30}, {5510, 30}, {5520, 15} };
+
+bool playerSpellAttuned = false;
+
+void ReadWorld(HANDLE processHandle) {
+	int spellAttCastsSum = 0;
+	ReadProcessMemory(processHandle, (LPCVOID)(world_base), &(world_base_add), (SIZE_T)sizeof(ullong), 0);
+	ReadProcessMemory(processHandle, (LPCVOID)(world_base_add+0x8), &(attunement_address), 4, 0);
+	attunement_address += 0x40;
+	ReadProcessMemory(processHandle, (LPCVOID)(attunement_address), &(attunement_att), 4, 0);
+	//Big mess to set attunement slots
+	if (attunement_att <  10) { attunement_slots = 0; }
+	if (attunement_att >= 10) { attunement_slots = 1; }
+	if (attunement_att >= 12) { attunement_slots = 2; }
+	if (attunement_att >= 14) { attunement_slots = 3; }
+	if (attunement_att >= 16) { attunement_slots = 4; }
+	if (attunement_att >= 19) { attunement_slots = 5; }
+	if (attunement_att >= 23) { attunement_slots = 6; }
+	if (attunement_att >= 28) { attunement_slots = 7; }
+	if (attunement_att >= 34) { attunement_slots = 8; }
+	if (attunement_att >= 41) { attunement_slots = 9; }
+	if (attunement_att >= 50) { attunement_slots = 10;}
+	for (int slot = 0; slot < attunement_slots; slot++) {
+		//Read spell IDs
+		ReadProcessMemory(processHandle, (LPCVOID)(world_base_add + 0x8), &(spellSlot_address[slot]), (SIZE_T)sizeof(ullong), 0);
+		ReadProcessMemory(processHandle, (LPCVOID)(spellSlot_address[slot] + 0x30C), &(spellSlot_address[slot]), 4, 0);
+		spellSlot_address[slot] += 0xC + (slot * 0x8);
+		ReadProcessMemory(processHandle, (LPCVOID)(spellSlot_address[slot]), &(spellSlot[slot]), 4, 0);
+		//Read spell casts
+		ReadProcessMemory(processHandle, (LPCVOID)(world_base_add + 0x8), &(spellSlotCasts_address[slot]), 4, 0);
+		ReadProcessMemory(processHandle, (LPCVOID)(spellSlotCasts_address[slot] + 0x30C), &(spellSlotCasts_address[slot]), 4, 0);
+		spellSlotCasts_address[slot] += 0x10 + (slot * 0x8);
+		ReadProcessMemory(processHandle, (LPCVOID)(spellSlotCasts_address[slot]), &(spellSlotCasts[slot]), 4, 0);
+		//Get rid of ALL OF THIS once actual working string pointer found vvv
+		if (spellSlot[slot] = Player.spellCurrent) {
+			for (int spellId = 0; spellId < 37; spellId++) {
+				if (spellSlot[slot] = defaultMaxCasts[spellId][0]) {
+					maxCasts = maxCasts + defaultMaxCasts[spellId][1];
+					spellId = 37;
+				}
+			}
+			spellAttCastsSum += spellSlotCasts[slot];
+		}
+		currentCasts = spellAttCastsSum / 3;
+	}
+	//Read Current Casts - I have no idea why this shit is broken
+	//ullong casts_base_add = 0x00F7F920;
+	/*ReadProcessMemory(processHandle, (LPCVOID)(casts_base_add + 0x28), &(currentCasts_address), 4, 0);
+	currentCasts_address += 0x2BC;
+	ReadProcessMemory(processHandle, (LPCVOID)(currentCasts_address), &(currentCasts), 4, 0);*/
+
+//	guiPrint("%s,6:current casts:%s", PlayerId, currentCasts);
+	guiPrint("%d,7:max casts:%d", PlayerId, maxCasts);
+}
 
 void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
     //TODO read large block that contains all data, then parse in process
@@ -60,63 +115,9 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
         ReadProcessMemory(processHandle, (LPCVOID)(c->stamina_address), &(c->stamina), 4, 0);
         guiPrint("%d,5:Stamina:%d", characterId, c->stamina);
     }
-
-	//HAHA NONE OF THIS MATTERS BECAUSE POINTERS CHANGE ACROSS SAVES AND ON INVASIONS
-	/*ReadProcessMemory(processHandle, (LPCVOID)(c->spellCurrent_address), &(c->spellCurrent), 4, 0);
-	guiPrint("%d,6:Current Spell Id:%d", characterId, c->spellCurrent);
-	c->currentCasts = 0;
-	c->totalSpells = 0;
-	if (c->spellCurrent >= 3000 && c->spellCurrent < 6000 && !brokenPtr) {
-
-		c->totalSpells = 1;
-		for (int slot = 0; slot < 12; slot = slot + 1) {
-			ReadProcessMemory(processHandle, (LPCVOID)(c->spellSlot_address[slot]), &(c->spellSlot[slot]), 4, 0);
-			ReadProcessMemory(processHandle, (LPCVOID)(c->spellSlotCasts_address[slot]), &(c->spellSlotCasts[slot]), 4, 0);
-			if ((c->spellSlot[slot] < 3000 && c->spellSlot[slot] != -1) || c->spellSlot[slot] > 6000 || c->spellSlot[1] == -1) { //Check if pointer is broken, if so use spellCurrent to guess
-				c->spellSlot[slot] = c->spellCurrent;
-				for (int spellId = 0; spellId < 37; spellId = spellId + 1) {
-					if (defaultMaxCasts[spellId][1] == c->spellCurrent) {
-						c->spellSlotCasts[slot] = defaultMaxCasts[spellId][2];
-						//I need to figure out how to make bot dPad Up here
-						c->totalSpells = c->totalSpells + 1;
-					}
-				}
-				//brokenPtr = true;
-			}
-			else if (c->spellSlot[slot] == c->spellCurrent) {
-				c->currentCasts = c->currentCasts + c->spellSlotCasts[slot];
-				for (int spellId = 0; spellId < 37; spellId = spellId + 1) {
-					if (defaultMaxCasts[spellId][1] == c->spellSlot[slot]) {
-						c->maxCasts = c->maxCasts + defaultMaxCasts[spellId][2];
-						guiPrint("%d,7:Current Casts:", characterId, c->currentCasts);
-					}
-				}
-			}
-			else if (c->spellSlot[slot] != c->spellCurrent && c->spellSlot[slot] > -1) {
-				c->totalSpells++;
-			}
-		}
-	}*/
 	
-	int spellFound = 0;
-	if (characterId == PlayerId) {
-		ReadProcessMemory(processHandle, (LPCVOID)(c->spellCurrent_address), &(c->spellCurrent), 4, 0);	
-		while (spellFound == 0 && c->spellCurrent != -1) {
-			c->currentCasts = 0;
-			if (c->spellCurrent >= 3000 && c->spellCurrent < 6000) {
-				for (int spellId = 0; spellId < 37; spellId = spellId + 1) {
-					if (defaultMaxCasts[spellId][0] == c->spellCurrent) {
-						c->maxCasts = defaultMaxCasts[spellId][1];
-						spellFound = 1;
-						spellId = 37;
-					}
-				}
-				guiPrint("%d,6:Current Spell:%d", characterId, c->spellCurrent);
-//				guiPrint("%d,7:Max Casts Usable:%d", characterId, c->maxCasts);
-				guiPrint("%d,7:Current Casts Used:%d", characterId, c->currentCasts);
-			}
-		}
-	}
+	//Read currently equipped spell
+	ReadProcessMemory(processHandle, (LPCVOID)(c->spellCurrent_address), &(c->spellCurrent), 4, 0);
 
     //read what weapon they currently have in right hand
     ReadProcessMemory(processHandle, (LPCVOID)(c->r_weapon_address), &(c->r_weapon_id), 4, 0);
@@ -131,7 +132,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 0;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2; //Kick range 2.5 but daggers are very short and I don't want bot to spam too much
 			WeaponGhostHitTime = 0.16;
 			break;
 		case EnemyId:
@@ -191,7 +192,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 2;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.26;
 			break;
 		case EnemyId:
@@ -221,7 +222,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 3;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.52;
 			break;
 		case EnemyId:
@@ -259,7 +260,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 4;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 1.5; //Just to make sure it dead angles in close range
 			WeaponGhostHitTime = 0.22;
 			break;
 		case EnemyId:
@@ -283,8 +284,8 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 5;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
-			WeaponGhostHitTime = 0.585;
+			c->minimumRange = 2.5;
+			WeaponGhostHitTime = 0.595;
 			break;
 		case EnemyId:
 			switch (c->animationType_id) {
@@ -321,7 +322,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId: 
 			c->WeaponRoutines = 6;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.225;
 		case EnemyId:
 			switch (c->animationType_id) {
@@ -358,7 +359,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 7;
 			c->isSpellTool = 0;
-			c->minimumRange = 2;
+			c->minimumRange = 2.25;
 			WeaponGhostHitTime = 0.28;
 			break;
 		case EnemyId:
@@ -382,7 +383,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 8;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.25; //Really long kick, but short weapon range so mitigate potential spamming
 			WeaponGhostHitTime = 0.16;
 			break;
 		case EnemyId:
@@ -411,7 +412,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 9;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.20;
 			break;
 		case EnemyId:
@@ -441,7 +442,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 10;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.26;
 		case EnemyId:
 			switch (c->animationType_id) {
@@ -472,7 +473,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 11;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.43;
 			break;
 		case EnemyId:
@@ -496,7 +497,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 12;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.5; //random guess tbh
 			break;
 		case EnemyId:
@@ -523,7 +524,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 13;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 1.9;
 			WeaponGhostHitTime = 0.2;
 			break;
 		case EnemyId:
@@ -637,7 +638,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 			case PlayerId:
 				c->WeaponRoutines = 14;
 				c->isSpellTool = 0;
-				c->minimumRange = 3;
+				c->minimumRange = 2.5;
 				WeaponGhostHitTime = 0.29;
 				break;
 		}
@@ -649,8 +650,8 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 15;
 			c->isSpellTool = 0;
-			c->minimumRange = 3;
-			WeaponGhostHitTime = 0.28;
+			c->minimumRange = 2.5;
+			WeaponGhostHitTime = 0.285;
 			break;
 		case EnemyId:
 			switch (c->animationType_id) {
@@ -670,7 +671,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 16;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.28;
 			break;
 		case EnemyId:
@@ -694,7 +695,7 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
 		case PlayerId:
 			c->WeaponRoutines = 17;
 			c->isSpellTool = 0;
-			c->minimumRange = 0;
+			c->minimumRange = 2.5;
 			WeaponGhostHitTime = 0.46;
 		case EnemyId:
 			switch (c->animationType_id) {
@@ -811,29 +812,6 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
         }
     }
 
-	//Check enemies weapon type. If a fast weap, will disable toggle escapes
-	//Daggers/Straight Swords
-	if (Enemy.r_weapon_id >= 100000 && Enemy.r_weapon_id <= 212950) {
-		EnemyWeaponClass = 0;
-	} // Curved Sword
-	else if (Enemy.r_weapon_id >= 400000 && Enemy.r_weapon_id <= 406950) {
-		EnemyWeaponClass = 0;
-	} // Katanas, Thrusting Swords, Hand Axe
-	else if (Enemy.r_weapon_id >= 500000 && Enemy.r_weapon_id <= 700950) {
-		EnemyWeaponClass = 0;
-	} // Fist Weapons/Spears
-	else if (Enemy.r_weapon_id >= 900000 && Enemy.r_weapon_id <= 1054950) {
-		EnemyWeaponClass = 0;
-	} // GT/DST
-	else if (Enemy.r_weapon_id >= 9010000 && Enemy.r_weapon_id <= 9011950) {
-		EnemyWeaponClass = 0;
-	} // Four-Pronged Plow
-	else if (Enemy.r_weapon_id >= 9016000 && Enemy.r_weapon_id <= 9016950) {
-		EnemyWeaponClass = 0;
-	} // GS/UGS/CGS/Axe/GA/Hammer/GH/Halb can be toggled
-	else {
-		EnemyWeaponClass = 1;
-	}
 
     int animationid;
     ReadProcessMemory(processHandle, (LPCVOID)(c->animationId_address), &animationid, 4, 0);
@@ -867,8 +845,14 @@ void ReadPlayer(Character * c, HANDLE processHandle, int characterId){
     {
         c->subanimation = LockInSubanimation;
     }
-    else if (animationid >= 2000 && animationid <= 2056){//animation states for poise breaks, knockdowns, launches, staggers
+    else if (animationid >= 2000 && animationid <= 2057){//animation states for staggers, kicks, launches, and knockdowns
         c->subanimation = PoiseBrokenSubanimation;
+		if ((animationid >= 2004 && animationid <= 2013) || animationid == 2018 || (animationid >= 2034 && animationid <= 2037) || (animationid >= 2054 && animationid <= 2057)) {
+			animEscapable = 1;
+		}
+		else {
+			animEscapable = 0;
+		}
     }
     //---subanimations based on animation type---
     else if (isDodgeAnimation(c->animationType_id) && animationid != -1){//in theory these two should never conflict. In practice, one might be slow.
@@ -1069,10 +1053,11 @@ void ReadPointerEndAddresses(HANDLE processHandle){
     Player.staminaRecoveryRate_address = 0;
     Player.poise_address = FindPointerAddr(processHandle, player_base_add, Player_Poise_offsets_length, Player_Poise_offsets);
     Player.bleedStatus_address = FindPointerAddr(processHandle, player_base_add, Player_BleedStatus_offsets_length, Player_BleedStatus_offsets);
+//	attunement_address = FindPointerAddr(processHandle, world_base_add, Attunement_offsets_length, Attunement_offsets); Does not work
 	Player.spellCurrent_address = FindPointerAddr(processHandle, player_base_add, Player_Spell_Current_offsets_length, Player_Spell_Current_offsets);
-	/*for (int a = 0; a < 12; a = a + 1) {
-		Player.spellSlot_address[a] = FindPointerAddr(processHandle, spell_base_add, Player_Spell_offsets_length, Player_Spell_offsets[a]);
-		Player.spellSlotCasts_address[a] = FindPointerAddr(processHandle, spell_base_add, Player_Casts_offsets_length, Player_Casts_offsets[a]);
-	}*/
-
+/*	for (int a = 0; a < 12; a = a + 1) { Does not work
+		spellSlot_address[a] = FindPointerAddr(processHandle, world_base_add, Spell_offsets_length, Spell_offsets[a]);
+		spellSlotCasts_address[a] = FindPointerAddr(processHandle, world_base_add, Casts_offsets_length, Casts_offsets[a]);
+	}
+*/
 }
